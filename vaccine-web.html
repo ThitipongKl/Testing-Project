@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>VaxCare — ระบบนัดฉีดวัคซีน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f0f4f8;--surface:#ffffff;--surface2:#f8fafc;
+  --primary:#0f4c75;--primary-light:#1b6ca8;--accent:#e63946;
+  --text:#1a2332;--text2:#4a5568;--text3:#718096;
+  --border:#e2e8f0;--border2:#cbd5e0;
+  --success:#2d6a4f;--success-bg:#d8f3dc;
+  --warn:#7b4f00;--warn-bg:#fff3cd;
+  --danger:#991b1b;--danger-bg:#fee2e2;
+  --info:#1e40af;--info-bg:#dbeafe;
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;
+  --shadow:0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--primary);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:.3s}
+.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.sidebar-logo h1{font-size:20px;font-weight:700;letter-spacing:.5px}
+.sidebar-logo p{font-size:12px;opacity:.6;margin-top:2px}
+.nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;transition:.15s;border-left:3px solid transparent;font-size:14px;opacity:.8}
+.nav-item:hover{background:rgba(255,255,255,0.08);opacity:1}
+.nav-item.active{background:rgba(255,255,255,0.15);border-left-color:#fff;opacity:1;font-weight:600}
+.nav-icon{font-size:18px;width:22px;text-align:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);font-size:12px;opacity:.5}
+
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:18px;font-weight:600;color:var(--primary)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.auth-badge{font-size:13px;padding:6px 14px;border-radius:999px;background:var(--info-bg);color:var(--info)}
+.content{padding:24px 28px;flex:1}
+
+/* ===== CARDS ===== */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.card-title{font-size:16px;font-weight:600;color:var(--primary);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* ===== STAT CARDS ===== */
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px}
+.stat-label{font-size:12px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.stat-value{font-size:28px;font-weight:700;color:var(--primary)}
+.stat-sub{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* ===== FORMS ===== */
+label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px;margin-top:12px}
+label:first-child{margin-top:0}
+input,select,textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border2);
+  border-radius:var(--radius-sm);font-size:15px;font-family:inherit;
+  background:#fff;color:var(--text);transition:.15s;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(27,108,168,0.12)}
+input[readonly]{background:var(--surface2);color:var(--text3)}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:14px;font-family:inherit;font-weight:500;transition:.15s;min-height:40px}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-light)}
+.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:#c62828}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text2)}.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:6px 12px;font-size:13px;min-height:32px}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid #fca5a5}.btn-danger:hover{background:#fca5a5}
+.btn-success{background:var(--success-bg);color:var(--success);border:1px solid #74c69d}
+
+/* ===== TABLE ===== */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}
+th{background:var(--primary);color:#fff;padding:11px 14px;text-align:left;font-weight:500;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+
+/* ===== BADGE ===== */
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:500}
+.badge-green{background:var(--success-bg);color:var(--success)}
+.badge-blue{background:var(--info-bg);color:var(--info)}
+.badge-warn{background:var(--warn-bg);color:var(--warn)}
+.badge-red{background:var(--danger-bg);color:var(--danger)}
+.badge-gray{background:#f1f5f9;color:#64748b}
+
+/* ===== PAGES ===== */
+.page{display:none}.page.active{display:block}
+
+/* ===== TOAST ===== */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 18px;border-radius:var(--radius);color:#fff;font-size:14px;min-width:240px;animation:toastIn .3s ease;box-shadow:var(--shadow-md)}
+.toast.success{background:#16a34a}.toast.error{background:#dc2626}.toast.info{background:var(--primary)}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== MODAL ===== */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius-lg);padding:24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-header h2{font-size:18px;font-weight:600;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1}
+
+/* ===== CALENDAR / SCHEDULE ===== */
+.schedule-day{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+.schedule-day-header{background:var(--primary);color:#fff;padding:10px 16px;font-weight:600;font-size:14px}
+.schedule-slot{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:14px}
+.schedule-slot:last-child{border-bottom:none}
+.slot-time{font-weight:600;color:var(--primary);min-width:56px;font-size:13px}
+.slot-info{flex:1}
+.slot-name{font-weight:500}
+.slot-vaccine{font-size:12px;color:var(--text3)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .sidebar{width:200px}
+  .main{margin-left:200px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .content{padding:16px}
+}
+@media(max-width:600px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:12px 16px}
+}
+
+/* ===== MISC ===== */
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+.muted{color:var(--text3);font-size:13px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-state .icon{font-size:40px;margin-bottom:8px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.dose-result-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-sm);background:var(--surface2);margin-bottom:8px}
+.dose-num{width:60px;font-weight:700;color:var(--primary);font-size:13px}
+.dose-date{font-weight:600;font-size:15px}
+.dose-day{font-size:13px;color:var(--text3);margin-left:auto}
+.login-overlay{position:fixed;inset:0;background:rgba(15,76,117,0.95);z-index:500;display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:var(--radius-lg);padding:32px;max-width:380px;width:100%;box-shadow:var(--shadow-md)}
+.login-box h2{color:var(--primary);margin-bottom:4px}
+.login-box p{color:var(--text3);font-size:14px;margin-bottom:20px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div style="font-size:32px;margin-bottom:8px">💉</div>
+    <h2>VaxCare</h2>
+    <p>ระบบนัดฉีดวัคซีนสำหรับเภสัชกร</p>
+    <label>Email ผู้ดูแล</label>
+    <input id="loginEmail" type="email" value="pharadmin@yourclinic.local" readonly/>
+    <label style="margin-top:12px">รหัสผ่าน</label>
+    <input id="loginPass" type="password" placeholder="ใส่รหัสผ่าน"/>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="doLogin()">เข้าสู่ระบบ</button>
+      <button class="btn btn-outline" onclick="guestLogin()">ใช้งานแบบ Guest</button>
+    </div>
+    <p id="loginErr" style="color:#dc2626;font-size:13px;margin-top:8px;display:none"></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>💉 VaxCare</h1>
+      <p>ระบบนัดวัคซีน</p>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span> ภาพรวม
+      </div>
+      <div class="nav-item" data-page="calculate">
+        <span class="nav-icon">📅</span> คำนวณวันฉีด
+      </div>
+      <div class="nav-item" data-page="patients">
+        <span class="nav-icon">👤</span> ข้อมูลคนไข้
+      </div>
+      <div class="nav-item" data-page="appointments">
+        <span class="nav-icon">🗓️</span> ตารางนัดหมาย
+      </div>
+      <div class="nav-item" data-page="vaccines">
+        <span class="nav-icon">🧪</span> จัดการวัคซีน
+      </div>
+      <div class="nav-item" data-page="holidays">
+        <span class="nav-icon">🏖️</span> วันหยุด
+      </div>
+    </nav>
+    <div class="sidebar-footer">v2.0 · Firebase Cloud</div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="pageTitle">ภาพรวม</span>
+      <div class="topbar-right">
+        <span class="auth-badge" id="authBadge">กำลังโหลด...</span>
+        <button class="btn btn-outline btn-sm" id="logoutBtn" style="display:none" onclick="doLogout()">ออกจากระบบ</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div id="page-dashboard" class="page active">
+        <div class="grid-4" style="margin-bottom:20px">
+          <div class="stat-card">
+            <div class="stat-label">นัดหมายวันนี้</div>
+            <div class="stat-value" id="stat-today">0</div>
+            <div class="stat-sub">รายการ</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">คนไข้ทั้งหมด</div>
+            <div class="stat-value" id="stat-patients">0</div>
+            <div class="stat-sub">คน</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">นัดสัปดาห์นี้</div>
+            <div class="stat-value" id="stat-week">0</div>
+            <div class="stat-sub">รายการ</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">ชนิดวัคซีน</div>
+            <div class="stat-value" id="stat-vaccines">0</div>
+            <div class="stat-sub">ชนิด</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">🗓️ นัดหมายวันนี้</div>
+            <div id="dashTodayList"><div class="empty-state"><div class="icon">📋</div>ไม่มีนัดหมายวันนี้</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">⏰ นัดหมายที่ใกล้มาถึง (7 วัน)</div>
+            <div id="dashUpcomingList"><div class="empty-state"><div class="icon">📋</div>ไม่มีนัดหมายที่ใกล้มาถึง</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CALCULATE ===== -->
+      <div id="page-calculate" class="page">
+        <div class="grid-2" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-title">📅 คำนวณวันฉีด (จากเข็ม 1)</div>
+            <label>ชนิดวัคซีน</label>
+            <select id="calc1Vaccine"></select>
+            <label>วันที่ฉีดเข็ม 1</label>
+            <input type="date" id="calc1Date"/>
+            <div style="margin-top:14px;display:flex;gap:8px">
+              <button class="btn btn-primary" onclick="calcFromDose1()">✅ คำนวณ</button>
+              <button class="btn btn-outline" onclick="saveFromCalcToAppt()">📌 บันทึกนัดหมาย</button>
+            </div>
+            <div id="calc1Result" style="margin-top:16px"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">📆 คำนวณเข็มถัดไป (จากเข็มล่าสุด)</div>
+            <label>ชนิดวัคซีน</label>
+            <select id="calc2Vaccine"></select>
+            <label>เข็มที่ล่าสุดที่ฉีด</label>
+            <select id="calc2DoseNum">
+              <option value="1">เข็ม 1</option>
+              <option value="2">เข็ม 2</option>
+              <option value="3">เข็ม 3</option>
+            </select>
+            <label>วันที่ฉีดเข็มล่าสุด</label>
+            <input type="date" id="calc2Date"/>
+            <div style="margin-top:14px">
+              <button class="btn btn-primary" onclick="calcNextDose()">✅ คำนวณเข็มถัดไป</button>
+            </div>
+            <div id="calc2Result" style="margin-top:16px"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 ข้อมูลระยะห่างวัคซีน</div>
+          <div class="table-wrap">
+            <table id="vaccineInfoTable">
+              <thead><tr><th>ชื่อวัคซีน</th><th>จำนวนเข็ม</th><th>เข็ม 2</th><th>เข็ม 3</th><th>เข็ม 4</th></tr></thead>
+              <tbody id="vaccineInfoBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PATIENTS ===== -->
+      <div id="page-patients" class="page">
+        <div class="section-header">
+          <div></div>
+          <button class="btn btn-primary" onclick="openPatientModal()">➕ เพิ่มคนไข้ใหม่</button>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <input type="text" id="patientSearch" placeholder="🔍 ค้นหาชื่อ หรือเบอร์โทร..." oninput="filterPatients()"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ชื่อ-นามสกุล</th><th>เบอร์โทร</th><th>Line ID</th><th>วันเกิด / อายุ</th><th>ประวัติการฉีด</th><th>จัดการ</th></tr></thead>
+            <tbody id="patientTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== APPOINTMENTS ===== -->
+      <div id="page-appointments" class="page">
+        <div class="section-header">
+          <div class="row">
+            <label style="margin:0">วันที่:</label>
+            <input type="date" id="apptDateFilter" style="width:auto" oninput="renderAppointments()"/>
+            <button class="btn btn-outline btn-sm" onclick="setApptToday()">วันนี้</button>
+          </div>
+          <button class="btn btn-primary" onclick="openApptModal()">➕ สร้างนัดหมาย</button>
+        </div>
+        <div id="appointmentList"></div>
+      </div>
+
+      <!-- ===== VACCINES ===== -->
+      <div id="page-vaccines" class="page">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">🧪 เพิ่ม/แก้ไขวัคซีน</div>
+            <p class="muted" style="margin-bottom:12px">รองรับสูงสุด 4 เข็ม กรอกระยะห่างเป็น <b>เดือน</b> (30 วัน)</p>
+            <input type="hidden" id="editVaccineId"/>
+            <label>ชื่อวัคซีน</label>
+            <input type="text" id="vName" placeholder="เช่น HPV-9 (15+ ปี)"/>
+            <label>จำนวนเข็ม</label>
+            <select id="vDoses">
+              <option value="1">1 เข็ม</option>
+              <option value="2">2 เข็ม</option>
+              <option value="3">3 เข็ม</option>
+              <option value="4">4 เข็ม</option>
+            </select>
+            <label>ระยะห่างเข็ม 2 (เดือนจากเข็ม 1)</label>
+            <input type="number" id="vM2" min="0" step="0.1" placeholder="เช่น 1"/>
+            <label>ระยะห่างเข็ม 3 (เดือนจากเข็ม 1)</label>
+            <input type="number" id="vM3" min="0" step="0.1" placeholder="เช่น 6"/>
+            <label>ระยะห่างเข็ม 4 (เดือนจากเข็ม 1)</label>
+            <input type="number" id="vM4" min="0" step="0.1" placeholder="เช่น 12"/>
+            <div style="margin-top:16px;display:flex;gap:8px">
+              <button class="btn btn-primary" id="saveVaccineBtn" onclick="saveVaccine()">💾 บันทึก</button>
+              <button class="btn btn-outline" onclick="resetVaccineForm()">🧹 ล้างฟอร์ม</button>
+            </div>
+            <div id="vaccineFormStatus" style="margin-top:8px;font-size:13px;color:var(--success)"></div>
+          </div>
+          <div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ชื่อวัคซีน</th><th>เข็ม</th><th>เข็ม2</th><th>เข็ม3</th><th>จัดการ</th></tr></thead>
+                <tbody id="vaccineTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== HOLIDAYS ===== -->
+      <div id="page-holidays" class="page">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">🏖️ เพิ่มวันหยุดพิเศษของร้าน</div>
+            <label>วันที่หยุด</label>
+            <input type="date" id="newHolidayDate"/>
+            <label>ชื่อ/หมายเหตุ</label>
+            <input type="text" id="newHolidayNote" placeholder="เช่น วันหยุดพิเศษของร้าน"/>
+            <button class="btn btn-primary" style="margin-top:12px" onclick="addHoliday()">➕ เพิ่มวันหยุด</button>
+          </div>
+          <div class="card">
+            <div class="card-title">📋 รายการวันหยุดทั้งหมด</div>
+            <div id="holidayList"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">📅 วันหยุดราชการไทย 2568–2569</div>
+          <div id="officialHolidayList"></div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end main -->
+</div><!-- end app -->
+
+<!-- MODAL: PATIENT -->
+<div class="modal-bg" id="patientModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="patientModalTitle">เพิ่มคนไข้ใหม่</h2>
+      <button class="modal-close" onclick="closeModal('patientModal')">✕</button>
+    </div>
+    <input type="hidden" id="patientModalId"/>
+    <label>ชื่อ-นามสกุล *</label>
+    <input type="text" id="pName" placeholder="ชื่อเต็ม"/>
+    <label>เบอร์โทรศัพท์</label>
+    <input type="tel" id="pPhone" placeholder="08x-xxx-xxxx"/>
+    <label>Line ID</label>
+    <input type="text" id="pLine" placeholder="@lineid"/>
+    <label>วันเกิด</label>
+    <input type="date" id="pDOB"/>
+    <label>โรคประจำตัว / หมายเหตุ</label>
+    <textarea id="pNote" rows="3" placeholder="ถ้าไม่มีใส่เป็น -"></textarea>
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal('patientModal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="savePatient()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: APPOINTMENT -->
+<div class="modal-bg" id="apptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>สร้างนัดหมาย</h2>
+      <button class="modal-close" onclick="closeModal('apptModal')">✕</button>
+    </div>
+    <input type="hidden" id="apptModalId"/>
+    <label>คนไข้ *</label>
+    <select id="apptPatient">
+      <option value="">-- เลือกคนไข้ --</option>
+    </select>
+    <label>วัคซีน *</label>
+    <select id="apptVaccine" onchange="updateApptDoseOptions()">
+      <option value="">-- เลือกวัคซีน --</option>
+    </select>
+    <label>เข็มที่</label>
+    <select id="apptDose">
+      <option value="1">เข็ม 1</option>
+    </select>
+    <label>วันที่นัด *</label>
+    <input type="date" id="apptDate"/>
+    <label>เวลานัด</label>
+    <input type="time" id="apptTime" value="09:00"/>
+    <label>หมายเหตุ</label>
+    <input type="text" id="apptNote" placeholder="ถ้าไม่มีว่างไว้"/>
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal('apptModal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveAppt()">💾 บันทึกนัด</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PATIENT HISTORY -->
+<div class="modal-bg" id="historyModal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h2 id="historyModalTitle">ประวัติการฉีดวัคซีน</h2>
+      <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
+    </div>
+    <div id="historyModalContent"></div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn btn-primary" id="historyAddApptBtn">➕ สร้างนัดหมายถัดไป</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDtkMsN4siS7XnxLizkbHPcvIlzXn0kbXA",
+  authDomain: "project-owner-testing.firebaseapp.com",
+  projectId: "project-owner-testing",
+  storageBucket: "project-owner-testing.firebasestorage.app",
+  messagingSenderId: "1099045592618",
+  appId: "1:1099045592618:web:3e0c3e331adf1e14a82d53"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const ADMIN_EMAIL = 'pharadmin@yourclinic.local';
+
+// ===== DATA =====
+const FALLBACK_VACCINES = [
+  {id:'Shingrix',name:'Shingrix',doses:2,months:[0,2,null,null]},
+  {id:'Varivax',name:'Varivax',doses:2,months:[0,1,null,null]},
+  {id:'Speeda',name:'Speeda',doses:2,months:[0,7/30,null,null]},
+  {id:'Engerix-B',name:'Engerix-B',doses:3,months:[0,1,6,null]},
+  {id:'HPV-4-under15',name:'HPV-4 (น้อยกว่า 15 ปี)',doses:2,months:[0,6,null,null]},
+  {id:'HPV-4-15up',name:'HPV-4 (15 ปีขึ้นไป)',doses:3,months:[0,1,6,null]},
+  {id:'HPV-9-under15',name:'HPV-9 (น้อยกว่า 15 ปี)',doses:2,months:[0,6,null,null]},
+  {id:'HPV-9-15up',name:'HPV-9 (15 ปีขึ้นไป)',doses:3,months:[0,1,6,null]},
+  {id:'Qdenga',name:'Qdenga',doses:2,months:[0,3,null,null]},
+  {id:'Prevnar15',name:'Prevnar 15',doses:2,months:[0,2,null,null]},
+  {id:'Flu4',name:'Flu4',doses:1,months:[0,null,null,null]},
+  {id:'Flu4HD',name:'Flu4 High Dose',doses:1,months:[0,null,null,null]},
+  {id:'PCV20',name:'PCV20',doses:1,months:[0,null,null,null]},
+  {id:'PPSV23',name:'PPSV23',doses:1,months:[0,1825/30,null,null]},
+  {id:'Tdap',name:'Tdap',doses:1,months:[0,3650/30,null,null]},
+  {id:'RSV',name:'RSV',doses:1,months:[0,null,null,null]},
+];
+
+const OFFICIAL_HOLIDAYS = new Set([
+  "2025-01-01","2025-02-12","2025-04-06","2025-04-13","2025-04-14","2025-04-15",
+  "2025-05-01","2025-05-05","2025-05-13","2025-07-13","2025-07-14","2025-08-12",
+  "2025-10-23","2025-12-05","2025-12-10","2025-12-31",
+  "2026-01-01","2026-02-02","2026-04-06","2026-04-13","2026-04-14","2026-04-15",
+  "2026-05-01","2026-05-05","2026-05-24","2026-07-12","2026-07-13","2026-08-12",
+  "2026-10-23","2026-12-05","2026-12-10","2026-12-31"
+]);
+
+window._vaccines = [];
+window._patients = [];
+window._appointments = [];
+window._customHolidays = [];
+window._isAdmin = false;
+window._db = db;
+window._auth = auth;
+window._ADMIN_EMAIL = ADMIN_EMAIL;
+
+// ===== UTILS =====
+const pad2 = n => String(n).padStart(2,'0');
+const toYMD = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const toDMY = d => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;
+const thaiDay = d => ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][d.getDay()];
+
+function isHoliday(d){
+  if(d.getDay()===0||d.getDay()===6) return true;
+  const ymd = toYMD(d);
+  if(OFFICIAL_HOLIDAYS.has(ymd)) return true;
+  if(window._customHolidays.some(h=>h.date===ymd)) return true;
+  return false;
+}
+function nextWorkday(d){
+  const r = new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  while(isHoliday(r)) r.setDate(r.getDate()+1);
+  return r;
+}
+function addDaysRollForward(start, days){
+  const d = new Date(start.getFullYear(),start.getMonth(),start.getDate());
+  d.setDate(d.getDate()+days);
+  return nextWorkday(d);
+}
+function calcAge(dob){
+  if(!dob) return '';
+  const d = new Date(dob), now = new Date();
+  let age = now.getFullYear()-d.getFullYear();
+  if(now.getMonth()<d.getMonth()||(now.getMonth()===d.getMonth()&&now.getDate()<d.getDate())) age--;
+  return age+'ปี';
+}
+window.showToast = function(msg,type='info'){
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className=`toast ${type}`;
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(()=>t.remove(),2800);
+}
+
+// ===== AUTH =====
+window.doLogin = async function(){
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+  if(!pass){document.getElementById('loginErr').textContent='กรุณาใส่รหัสผ่าน';document.getElementById('loginErr').style.display='';return;}
+  try{
+    await signInWithEmailAndPassword(auth,email,pass);
+    document.getElementById('loginOverlay').style.display='none';
+    showToast('เข้าสู่ระบบสำเร็จ','success');
+  }catch(e){
+    document.getElementById('loginErr').textContent='รหัสผ่านไม่ถูกต้อง';
+    document.getElementById('loginErr').style.display='';
+  }
+}
+window.guestLogin = function(){
+  document.getElementById('loginOverlay').style.display='none';
+  showToast('เข้าสู่ระบบในฐานะ Guest (อ่านอย่างเดียว)','info');
+}
+window.doLogout = function(){ signOut(auth); document.getElementById('loginOverlay').style.display='flex'; }
+
+onAuthStateChanged(auth, user=>{
+  const isAdmin = !!user && user.email===ADMIN_EMAIL;
+  window._isAdmin = isAdmin;
+  document.getElementById('authBadge').textContent = isAdmin ? `👑 ${user.email}` : 'Guest · อ่านอย่างเดียว';
+  document.getElementById('logoutBtn').style.display = isAdmin?'':'none';
+  document.getElementById('saveVaccineBtn').disabled = !isAdmin;
+});
+
+// ===== FIRESTORE LISTENERS =====
+onSnapshot(collection(db,'vaccines'), snap=>{
+  const arr = snap.docs.map(d=>({id:d.id,...d.data()}));
+  window._vaccines = arr.length>0 ? arr : FALLBACK_VACCINES;
+  refreshVaccineDropdowns();
+  renderVaccineTable();
+  renderVaccineInfoTable();
+  updateStats();
+  if(arr.length===0) showToast('ใช้ข้อมูลวัคซีนตัวอย่าง (ยังไม่มีใน Cloud)');
+}, err=>{
+  window._vaccines = FALLBACK_VACCINES;
+  refreshVaccineDropdowns();
+  renderVaccineTable();
+  renderVaccineInfoTable();
+  updateStats();
+});
+
+onSnapshot(collection(db,'patients'), snap=>{
+  window._patients = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderPatientTable();
+  refreshPatientDropdown();
+  updateStats();
+});
+
+onSnapshot(collection(db,'appointments'), snap=>{
+  window._appointments = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderAppointments();
+  renderDashboard();
+  updateStats();
+});
+
+onSnapshot(collection(db,'holidays'), snap=>{
+  window._customHolidays = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderHolidayList();
+});
+
+// ===== NAVIGATION =====
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    item.classList.add('active');
+    const page = item.dataset.page;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    document.getElementById('pageTitle').textContent = item.textContent.trim();
+  });
+});
+
+// ===== STATS =====
+function updateStats(){
+  document.getElementById('stat-patients').textContent = window._patients.length;
+  document.getElementById('stat-vaccines').textContent = window._vaccines.length;
+  const today = toYMD(new Date());
+  const todayAppts = window._appointments.filter(a=>a.date===today);
+  document.getElementById('stat-today').textContent = todayAppts.length;
+  const in7 = new Date(); in7.setDate(in7.getDate()+7);
+  const in7str = toYMD(in7);
+  const weekAppts = window._appointments.filter(a=>a.date>=today && a.date<=in7str);
+  document.getElementById('stat-week').textContent = weekAppts.length;
+}
+
+// ===== DASHBOARD =====
+function renderDashboard(){
+  const today = toYMD(new Date());
+  const todayAppts = window._appointments.filter(a=>a.date===today).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const in7 = new Date(); in7.setDate(in7.getDate()+7);
+  const in7str = toYMD(in7);
+  const upcoming = window._appointments.filter(a=>a.date>today && a.date<=in7str).sort((a,b)=>a.date.localeCompare(b.date));
+
+  const todayEl = document.getElementById('dashTodayList');
+  if(todayAppts.length===0){
+    todayEl.innerHTML='<div class="empty-state"><div class="icon">📋</div>ไม่มีนัดหมายวันนี้</div>';
+  }else{
+    todayEl.innerHTML = todayAppts.map(a=>{
+      const p = window._patients.find(pt=>pt.id===a.patientId);
+      return `<div class="schedule-slot">
+        <span class="slot-time">${a.time||'-'}</span>
+        <div class="slot-info">
+          <div class="slot-name">${p?p.name:'ไม่ทราบ'}</div>
+          <div class="slot-vaccine">${a.vaccine} · เข็ม ${a.dose}</div>
+        </div>
+        <span class="badge badge-green">วันนี้</span>
+      </div>`;
+    }).join('');
+  }
+
+  const upEl = document.getElementById('dashUpcomingList');
+  if(upcoming.length===0){
+    upEl.innerHTML='<div class="empty-state"><div class="icon">📋</div>ไม่มีนัดหมายที่ใกล้มาถึง</div>';
+  }else{
+    upEl.innerHTML = upcoming.slice(0,6).map(a=>{
+      const p = window._patients.find(pt=>pt.id===a.patientId);
+      const [y,m,d] = a.date.split('-');
+      const dt = new Date(+y,+m-1,+d);
+      return `<div class="schedule-slot">
+        <span class="slot-time">${a.time||''}</span>
+        <div class="slot-info">
+          <div class="slot-name">${p?p.name:'ไม่ทราบ'}</div>
+          <div class="slot-vaccine">${a.vaccine} · เข็ม ${a.dose}</div>
+        </div>
+        <span class="badge badge-blue">${toDMY(dt)}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ===== VACCINES =====
+function refreshVaccineDropdowns(){
+  ['calc1Vaccine','calc2Vaccine','apptVaccine'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const prev = el.value;
+    if(id==='apptVaccine') el.innerHTML='<option value="">-- เลือกวัคซีน --</option>';
+    else el.innerHTML='';
+    window._vaccines.forEach(v=>{
+      const o = document.createElement('option');
+      o.value=v.name; o.textContent=v.name; el.appendChild(o);
+    });
+    if(prev) el.value=prev;
+  });
+}
+function renderVaccineTable(){
+  const tb = document.getElementById('vaccineTableBody');
+  if(!tb) return;
+  tb.innerHTML = window._vaccines.map((v,i)=>`
+    <tr>
+      <td>${v.name}</td>
+      <td>${v.doses}</td>
+      <td>${v.months?.[1]!=null?v.months[1].toFixed(1)+' เดือน':'-'}</td>
+      <td>${v.months?.[2]!=null?v.months[2].toFixed(1)+' เดือน':'-'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editVaccine('${v.id||v.name}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteVaccine('${v.id||v.name}')">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+function renderVaccineInfoTable(){
+  const tb = document.getElementById('vaccineInfoBody');
+  if(!tb) return;
+  tb.innerHTML = window._vaccines.map(v=>{
+    const fmtM = m => m!=null ? (m>=1?m.toFixed(1)+' เดือน':(m*30).toFixed(0)+' วัน') : '-';
+    return `<tr>
+      <td>${v.name}</td>
+      <td>${v.doses} เข็ม</td>
+      <td>${fmtM(v.months?.[1])}</td>
+      <td>${fmtM(v.months?.[2])}</td>
+      <td>${fmtM(v.months?.[3])}</td>
+    </tr>`;
+  }).join('');
+}
+window.saveVaccine = async function(){
+  if(!window._isAdmin){showToast('สำหรับผู้ดูแลเท่านั้น','error');return;}
+  const name = document.getElementById('vName').value.trim();
+  if(!name){showToast('กรุณากรอกชื่อวัคซีน','error');return;}
+  const doses = parseInt(document.getElementById('vDoses').value);
+  const pn = v=>v===''||v==null?null:(isNaN(parseFloat(v))?null:parseFloat(v));
+  const m2=doses>=2?pn(document.getElementById('vM2').value):null;
+  const m3=doses>=3?pn(document.getElementById('vM3').value):null;
+  const m4=doses>=4?pn(document.getElementById('vM4').value):null;
+  const id = document.getElementById('editVaccineId').value||name;
+  await setDoc(doc(db,'vaccines',id),{name,doses,months:[0,m2,m3,m4]});
+  showToast('บันทึกวัคซีนเรียบร้อย','success');
+  resetVaccineForm();
+}
+window.resetVaccineForm = function(){
+  ['vName','vM2','vM3','vM4'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('vDoses').value='1';
+  document.getElementById('editVaccineId').value='';
+}
+window.editVaccine = function(id){
+  const v = window._vaccines.find(x=>(x.id||x.name)===id);
+  if(!v) return;
+  document.getElementById('editVaccineId').value=id;
+  document.getElementById('vName').value=v.name;
+  document.getElementById('vDoses').value=String(v.doses);
+  document.getElementById('vM2').value=v.months?.[1]??'';
+  document.getElementById('vM3').value=v.months?.[2]??'';
+  document.getElementById('vM4').value=v.months?.[3]??'';
+  document.querySelector('[data-page="vaccines"]').click();
+}
+window.deleteVaccine = async function(id){
+  if(!window._isAdmin){showToast('สำหรับผู้ดูแลเท่านั้น','error');return;}
+  if(!confirm('ยืนยันลบวัคซีนนี้?')) return;
+  try{ await deleteDoc(doc(db,'vaccines',id)); showToast('ลบวัคซีนแล้ว','success'); }
+  catch(e){ showToast('ลบไม่ได้ (อาจเป็น fallback)','error'); }
+}
+
+// ===== PATIENTS =====
+function renderPatientTable(filter=''){
+  const tb = document.getElementById('patientTableBody');
+  let list = window._patients;
+  if(filter) list=list.filter(p=>p.name?.includes(filter)||p.phone?.includes(filter));
+  if(list.length===0){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="icon">👤</div>ยังไม่มีข้อมูลคนไข้</div></td></tr>';return;}
+  tb.innerHTML = list.map(p=>{
+    const appts = window._appointments.filter(a=>a.patientId===p.id);
+    return `<tr>
+      <td><b>${p.name}</b></td>
+      <td>${p.phone||'-'}</td>
+      <td>${p.lineId||'-'}</td>
+      <td>${p.dob?toDMY(new Date(p.dob+' 00:00'))+' ('+calcAge(p.dob)+')':'-'}</td>
+      <td><span class="badge badge-blue">${appts.length} ครั้ง</span>
+        <button class="btn btn-sm btn-outline" style="margin-left:6px" onclick="showHistory('${p.id}')">📋 ประวัติ</button>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="openPatientModal('${p.id}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+window.filterPatients = function(){
+  renderPatientTable(document.getElementById('patientSearch').value.trim());
+}
+function refreshPatientDropdown(){
+  const el = document.getElementById('apptPatient');
+  const prev = el.value;
+  el.innerHTML='<option value="">-- เลือกคนไข้ --</option>';
+  window._patients.forEach(p=>{
+    const o=document.createElement('option');o.value=p.id;o.textContent=p.name;el.appendChild(o);
+  });
+  if(prev) el.value=prev;
+}
+window.openPatientModal = function(id=''){
+  document.getElementById('patientModalId').value=id;
+  if(id){
+    const p=window._patients.find(x=>x.id===id);
+    if(!p) return;
+    document.getElementById('patientModalTitle').textContent='แก้ไขข้อมูลคนไข้';
+    document.getElementById('pName').value=p.name||'';
+    document.getElementById('pPhone').value=p.phone||'';
+    document.getElementById('pLine').value=p.lineId||'';
+    document.getElementById('pDOB').value=p.dob||'';
+    document.getElementById('pNote').value=p.note||'';
+  }else{
+    document.getElementById('patientModalTitle').textContent='เพิ่มคนไข้ใหม่';
+    ['pName','pPhone','pLine','pDOB','pNote'].forEach(i=>{document.getElementById(i).value='';});
+  }
+  document.getElementById('patientModal').classList.add('open');
+}
+window.savePatient = async function(){
+  const name=document.getElementById('pName').value.trim();
+  if(!name){showToast('กรุณาใส่ชื่อคนไข้','error');return;}
+  const id=document.getElementById('patientModalId').value;
+  const data={name,phone:document.getElementById('pPhone').value,lineId:document.getElementById('pLine').value,dob:document.getElementById('pDOB').value,note:document.getElementById('pNote').value};
+  if(id) await setDoc(doc(db,'patients',id),data,{merge:true});
+  else await addDoc(collection(db,'patients'),data);
+  showToast('บันทึกข้อมูลคนไข้เรียบร้อย','success');
+  closeModal('patientModal');
+}
+window.deletePatient = async function(id){
+  if(!confirm('ยืนยันลบคนไข้นี้?')) return;
+  await deleteDoc(doc(db,'patients',id));
+  showToast('ลบคนไข้แล้ว','success');
+}
+
+// ===== APPOINTMENTS =====
+window.setApptToday = function(){
+  document.getElementById('apptDateFilter').value=toYMD(new Date());
+  renderAppointments();
+}
+function renderAppointments(){
+  const dateFilter = document.getElementById('apptDateFilter').value;
+  let list = window._appointments;
+  if(dateFilter) list=list.filter(a=>a.date===dateFilter);
+  list = list.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const el = document.getElementById('appointmentList');
+  if(list.length===0){el.innerHTML='<div class="card"><div class="empty-state"><div class="icon">🗓️</div>ไม่มีนัดหมายในวันที่เลือก</div></div>';return;}
+  const byDate={};
+  list.forEach(a=>{if(!byDate[a.date])byDate[a.date]=[];byDate[a.date].push(a);});
+  el.innerHTML = Object.entries(byDate).map(([date,appts])=>{
+    const [y,m,d]=date.split('-');
+    const dt=new Date(+y,+m-1,+d);
+    return `<div class="schedule-day">
+      <div class="schedule-day-header">📅 ${toDMY(dt)} (${thaiDay(dt)})</div>
+      ${appts.map(a=>{
+        const p=window._patients.find(pt=>pt.id===a.patientId);
+        const isPast=date<toYMD(new Date());
+        return `<div class="schedule-slot">
+          <span class="slot-time">${a.time||'-'}</span>
+          <div class="slot-info">
+            <div class="slot-name">${p?p.name:'ไม่ทราบ'} ${a.note?`<span class="muted">· ${a.note}</span>`:''}</div>
+            <div class="slot-vaccine">${a.vaccine} · เข็ม ${a.dose}</div>
+          </div>
+          <span class="badge ${isPast?'badge-gray':'badge-green'}">${isPast?'ผ่านแล้ว':'นัดแล้ว'}</span>
+          <button class="btn btn-sm btn-danger" onclick="deleteAppt('${a.id}')" style="margin-left:8px">🗑️</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+window.openApptModal = function(prefill={}){
+  document.getElementById('apptModalId').value='';
+  if(prefill.patientId) document.getElementById('apptPatient').value=prefill.patientId;
+  if(prefill.vaccine) document.getElementById('apptVaccine').value=prefill.vaccine;
+  if(prefill.date) document.getElementById('apptDate').value=prefill.date;
+  if(prefill.dose) document.getElementById('apptDose').value=prefill.dose;
+  updateApptDoseOptions();
+  document.getElementById('apptModal').classList.add('open');
+}
+window.updateApptDoseOptions = function(){
+  const v=window._vaccines.find(x=>x.name===document.getElementById('apptVaccine').value);
+  const sel=document.getElementById('apptDose');
+  const prev=sel.value;
+  sel.innerHTML='';
+  const doses=v?v.doses:4;
+  for(let i=1;i<=doses;i++){const o=document.createElement('option');o.value=i;o.textContent=`เข็ม ${i}`;sel.appendChild(o);}
+  if(prev) sel.value=prev;
+}
+window.saveAppt = async function(){
+  const patientId=document.getElementById('apptPatient').value;
+  const vaccine=document.getElementById('apptVaccine').value;
+  const date=document.getElementById('apptDate').value;
+  if(!patientId||!vaccine||!date){showToast('กรุณากรอกข้อมูลให้ครบ','error');return;}
+  const data={patientId,vaccine,dose:parseInt(document.getElementById('apptDose').value),date,time:document.getElementById('apptTime').value,note:document.getElementById('apptNote').value,createdAt:new Date().toISOString()};
+  await addDoc(collection(db,'appointments'),data);
+  showToast('บันทึกนัดหมายเรียบร้อย','success');
+  closeModal('apptModal');
+}
+window.deleteAppt = async function(id){
+  if(!confirm('ยืนยันยกเลิกนัดหมายนี้?')) return;
+  await deleteDoc(doc(db,'appointments',id));
+  showToast('ยกเลิกนัดหมายแล้ว','success');
+}
+
+// ===== CALCULATE =====
+window.calcFromDose1 = function(){
+  const name=document.getElementById('calc1Vaccine').value;
+  const dateStr=document.getElementById('calc1Date').value;
+  if(!dateStr){showToast('กรุณาเลือกวันที่เข็ม 1','error');return;}
+  const v=window._vaccines.find(x=>x.name===name); if(!v) return;
+  const base=new Date(dateStr+' 00:00');
+  let html=`<div class="dose-result-row"><div class="dose-num">เข็ม 1</div><div class="dose-date">${toDMY(base)}</div><div class="dose-day">${thaiDay(base)}</div></div>`;
+  for(let i=2;i<=v.doses;i++){
+    const m=v.months?.[i-1]; if(m==null) continue;
+    const dt=addDaysRollForward(base,Math.round(m*30));
+    html+=`<div class="dose-result-row"><div class="dose-num">เข็ม ${i}</div><div class="dose-date">${toDMY(dt)}</div><div class="dose-day">${thaiDay(dt)}</div></div>`;
+  }
+  document.getElementById('calc1Result').innerHTML=html;
+  window._lastCalcResult={vaccine:name,baseDate:dateStr,v};
+}
+window.saveFromCalcToAppt = function(){
+  if(!window._lastCalcResult){showToast('คำนวณก่อนแล้วค่อยบันทึกนัด','error');return;}
+  openApptModal({vaccine:window._lastCalcResult.vaccine,date:window._lastCalcResult.baseDate,dose:1});
+  document.querySelector('[data-page="appointments"]')?.click?.();
+}
+window.calcNextDose = function(){
+  const name=document.getElementById('calc2Vaccine').value;
+  const lastDose=parseInt(document.getElementById('calc2DoseNum').value);
+  const dateStr=document.getElementById('calc2Date').value;
+  if(!dateStr){showToast('กรุณาเลือกวันที่','error');return;}
+  const v=window._vaccines.find(x=>x.name===name); if(!v) return;
+  if(lastDose>=v.doses){document.getElementById('calc2Result').innerHTML='<div class="badge badge-gray">วัคซีนนี้ฉีดครบแล้ว</div>';return;}
+  const nextDose=lastDose+1;
+  const mNext=v.months?.[nextDose-1]; const mLast=v.months?.[lastDose-1];
+  if(mNext==null||mLast==null){document.getElementById('calc2Result').innerHTML='<div class="badge badge-red">ไม่มีข้อมูลเข็มถัดไป</div>';return;}
+  const base=new Date(dateStr+' 00:00');
+  const delta=mNext-mLast;
+  const dt=addDaysRollForward(base,Math.round(delta*30));
+  document.getElementById('calc2Result').innerHTML=`
+    <div class="dose-result-row" style="background:var(--info-bg)">
+      <div class="dose-num" style="color:var(--info)">เข็ม ${nextDose}</div>
+      <div class="dose-date">${toDMY(dt)}</div>
+      <div class="dose-day">${thaiDay(dt)}</div>
+    </div>
+    <p class="muted" style="margin-top:8px">ห่างจากเข็ม ${lastDose} ประมาณ ${(delta*30).toFixed(0)} วัน</p>`;
+}
+
+// ===== HISTORY =====
+window.showHistory = function(patientId){
+  const p=window._patients.find(x=>x.id===patientId); if(!p) return;
+  document.getElementById('historyModalTitle').textContent=`ประวัติ: ${p.name}`;
+  const appts=window._appointments.filter(a=>a.patientId===patientId).sort((a,b)=>a.date.localeCompare(b.date));
+  let html='';
+  if(appts.length===0){html='<div class="empty-state"><div class="icon">💉</div>ยังไม่มีประวัติการฉีด</div>';}
+  else{
+    const byVaccine={};
+    appts.forEach(a=>{if(!byVaccine[a.vaccine])byVaccine[a.vaccine]=[];byVaccine[a.vaccine].push(a);});
+    html=Object.entries(byVaccine).map(([vac,list])=>`
+      <div style="margin-bottom:16px">
+        <div style="font-weight:600;color:var(--primary);margin-bottom:8px">💉 ${vac}</div>
+        ${list.map(a=>{
+          const [y,m,d]=a.date.split('-');const dt=new Date(+y,+m-1,+d);
+          return `<div class="dose-result-row"><div class="dose-num">เข็ม ${a.dose}</div><div class="dose-date">${toDMY(dt)}</div><div class="dose-day">${thaiDay(dt)}</div></div>`;
+        }).join('')}
+      </div>`).join('');
+  }
+  document.getElementById('historyModalContent').innerHTML=html;
+  document.getElementById('historyAddApptBtn').onclick=()=>{
+    closeModal('historyModal');
+    openApptModal({patientId});
+  };
+  document.getElementById('historyModal').classList.add('open');
+}
+
+// ===== HOLIDAYS =====
+window.addHoliday = async function(){
+  const date=document.getElementById('newHolidayDate').value;
+  const note=document.getElementById('newHolidayNote').value.trim()||'วันหยุดพิเศษ';
+  if(!date){showToast('กรุณาเลือกวันที่','error');return;}
+  await addDoc(collection(db,'holidays'),{date,note});
+  document.getElementById('newHolidayDate').value='';
+  document.getElementById('newHolidayNote').value='';
+  showToast('เพิ่มวันหยุดแล้ว','success');
+}
+function renderHolidayList(){
+  const el=document.getElementById('holidayList');
+  if(window._customHolidays.length===0){el.innerHTML='<p class="muted">ยังไม่มีวันหยุดพิเศษ</p>';return;}
+  el.innerHTML=window._customHolidays.sort((a,b)=>a.date.localeCompare(b.date)).map(h=>{
+    const [y,m,d]=h.date.split('-');const dt=new Date(+y,+m-1,+d);
+    return `<div class="schedule-slot">
+      <span class="slot-time">${toDMY(dt)}</span>
+      <div class="slot-info">${h.note||''}</div>
+      <button class="btn btn-sm btn-danger" onclick="deleteHoliday('${h.id}')">🗑️</button>
+    </div>`;
+  }).join('');
+}
+window.deleteHoliday = async function(id){
+  await deleteDoc(doc(db,'holidays',id));
+  showToast('ลบวันหยุดแล้ว');
+}
+function renderOfficialHolidays(){
+  const el=document.getElementById('officialHolidayList');
+  const list=[...OFFICIAL_HOLIDAYS].sort();
+  el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px">${list.map(h=>{
+    const [y,m,d]=h.split('-');const dt=new Date(+y,+m-1,+d);
+    return `<span class="badge badge-blue">${toDMY(dt)} ${thaiDay(dt)}</span>`;
+  }).join('')}</div>`;
+}
+
+// ===== MODAL HELPERS =====
+window.closeModal = function(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-bg').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+
+// ===== INIT =====
+document.getElementById('apptDateFilter').value=toYMD(new Date());
+renderOfficialHolidays();
+updateStats();
+renderDashboard();
+
+</script>
+</body>
+</html>
