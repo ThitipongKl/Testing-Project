@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>VaxCare — ระบบนัดฉีดวัคซีน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --bg:#f0f4f8;--surface:#ffffff;--surface2:#f8fafc;
+  --bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;
   --primary:#0f4c75;--primary-light:#1b6ca8;--accent:#e63946;
   --text:#1a2332;--text2:#4a5568;--text3:#718096;
   --border:#e2e8f0;--border2:#cbd5e0;
@@ -17,304 +17,295 @@
   --danger:#991b1b;--danger-bg:#fee2e2;
   --info:#1e40af;--info-bg:#dbeafe;
   --radius:12px;--radius-sm:8px;--radius-lg:16px;
-  --shadow:0 2px 8px rgba(0,0,0,0.08);
-  --shadow-md:0 4px 16px rgba(0,0,0,0.12);
+  --sidebar-w:240px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans Thai',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6}
 
-/* ===== LAYOUT ===== */
+/* LAYOUT */
 .app{display:flex;min-height:100vh}
-.sidebar{width:240px;background:var(--primary);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:.3s}
-.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.1)}
-.sidebar-logo h1{font-size:20px;font-weight:700;letter-spacing:.5px}
-.sidebar-logo p{font-size:12px;opacity:.6;margin-top:2px}
-.nav{flex:1;padding:12px 0;overflow-y:auto}
-.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;transition:.15s;border-left:3px solid transparent;font-size:14px;opacity:.8}
-.nav-item:hover{background:rgba(255,255,255,0.08);opacity:1}
-.nav-item.active{background:rgba(255,255,255,0.15);border-left-color:#fff;opacity:1;font-weight:600}
-.nav-icon{font-size:18px;width:22px;text-align:center}
-.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);font-size:12px;opacity:.5}
+.sidebar{width:var(--sidebar-w);background:var(--primary);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200;transition:.25s ease}
+.sidebar-logo{padding:20px 18px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo h1{font-size:19px;font-weight:700}
+.sidebar-logo p{font-size:11px;opacity:.55;margin-top:2px}
+.nav{flex:1;padding:10px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;transition:.15s;border-left:3px solid transparent;font-size:14px;opacity:.8}
+.nav-item:hover{background:rgba(255,255,255,.09);opacity:1}
+.nav-item.active{background:rgba(255,255,255,.16);border-left-color:#fff;opacity:1;font-weight:600}
+.nav-icon{font-size:17px;width:20px;text-align:center}
+.sidebar-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;opacity:.45}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199}
 
-.main{margin-left:240px;flex:1;display:flex;flex-direction:column}
-.topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.topbar-title{font-size:18px;font-weight:600;color:var(--primary)}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.auth-badge{font-size:13px;padding:6px 14px;border-radius:999px;background:var(--info-bg);color:var(--info)}
-.content{padding:24px 28px;flex:1}
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:10px}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.hamburger{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--primary);padding:4px}
+.topbar-title{font-size:17px;font-weight:600;color:var(--primary)}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.auth-badge{font-size:12px;padding:5px 12px;border-radius:999px;background:var(--info-bg);color:var(--info);white-space:nowrap}
+.content{padding:22px 24px;flex:1}
 
-/* ===== CARDS ===== */
-.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
-.card-title{font-size:16px;font-weight:600;color:var(--primary);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+/* CARDS */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px}
+.card-title{font-size:15px;font-weight:600;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 
-/* ===== STAT CARDS ===== */
-.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px}
-.stat-label{font-size:12px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
-.stat-value{font-size:28px;font-weight:700;color:var(--primary)}
-.stat-sub{font-size:12px;color:var(--text3);margin-top:2px}
+/* STAT CARDS */
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.stat-value{font-size:26px;font-weight:700;color:var(--primary)}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:1px}
 
-/* ===== FORMS ===== */
-label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px;margin-top:12px}
+/* FORMS */
+label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px;margin-top:11px}
 label:first-child{margin-top:0}
-input,select,textarea{
-  width:100%;padding:10px 12px;border:1.5px solid var(--border2);
-  border-radius:var(--radius-sm);font-size:15px;font-family:inherit;
-  background:#fff;color:var(--text);transition:.15s;outline:none;
-}
-input:focus,select:focus,textarea:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(27,108,168,0.12)}
+input,select,textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;background:#fff;color:var(--text);transition:.15s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(27,108,168,.12)}
 input[readonly]{background:var(--surface2);color:var(--text3)}
 
-/* ===== BUTTONS ===== */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:14px;font-family:inherit;font-weight:500;transition:.15s;min-height:40px}
+/* UNIT TOGGLE */
+.unit-toggle{display:flex;border:1.5px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;margin-top:6px;width:fit-content}
+.unit-btn{padding:5px 14px;border:none;cursor:pointer;font-size:13px;background:#fff;color:var(--text3);transition:.15s;font-family:inherit}
+.unit-btn.active{background:var(--primary);color:#fff}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:14px;font-family:inherit;font-weight:500;transition:.15s;min-height:38px;white-space:nowrap}
 .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-light)}
-.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:#c62828}
+.btn-accent{background:var(--accent);color:#fff}
 .btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text2)}.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
-.btn-sm{padding:6px 12px;font-size:13px;min-height:32px}
-.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid #fca5a5}.btn-danger:hover{background:#fca5a5}
+.btn-sm{padding:5px 11px;font-size:13px;min-height:30px}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid #fca5a5}
 .btn-success{background:var(--success-bg);color:var(--success);border:1px solid #74c69d}
 
-/* ===== TABLE ===== */
+/* TABLE */
 .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}
-th{background:var(--primary);color:#fff;padding:11px 14px;text-align:left;font-weight:500;white-space:nowrap}
-td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+th{background:var(--primary);color:#fff;padding:10px 13px;text-align:left;font-weight:500;white-space:nowrap}
+td{padding:10px 13px;border-bottom:1px solid var(--border);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:var(--surface2)}
 
-/* ===== BADGE ===== */
-.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:500}
+/* BADGE */
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:500}
 .badge-green{background:var(--success-bg);color:var(--success)}
 .badge-blue{background:var(--info-bg);color:var(--info)}
 .badge-warn{background:var(--warn-bg);color:var(--warn)}
 .badge-red{background:var(--danger-bg);color:var(--danger)}
 .badge-gray{background:#f1f5f9;color:#64748b}
+.badge-purple{background:#ede9fe;color:#6d28d9}
 
-/* ===== PAGES ===== */
+/* AUTOCOMPLETE */
+.ac-wrap{position:relative}
+.ac-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--primary-light);border-radius:var(--radius-sm);max-height:200px;overflow-y:auto;z-index:300;display:none;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.ac-dropdown.open{display:block}
+.ac-item{padding:9px 13px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover{background:var(--surface2)}
+.ac-item b{color:var(--primary)}
+.ac-item .hn{font-size:12px;color:var(--text3);margin-left:6px}
+
+/* PAGES */
 .page{display:none}.page.active{display:block}
 
-/* ===== TOAST ===== */
-.toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
-.toast{padding:12px 18px;border-radius:var(--radius);color:#fff;font-size:14px;min-width:240px;animation:toastIn .3s ease;box-shadow:var(--shadow-md)}
+/* TOAST */
+.toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:11px 16px;border-radius:var(--radius);color:#fff;font-size:14px;min-width:220px;animation:toastIn .3s ease;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .toast.success{background:#16a34a}.toast.error{background:#dc2626}.toast.info{background:var(--primary)}
-@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* ===== MODAL ===== */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:var(--radius-lg);padding:24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.modal-header h2{font-size:18px;font-weight:600;color:var(--primary)}
-.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1}
+.modal{background:#fff;border-radius:var(--radius-lg);padding:22px;max-width:580px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-header h2{font-size:17px;font-weight:600;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);line-height:1}
 
-/* ===== CALENDAR / SCHEDULE ===== */
+/* SCHEDULE */
 .schedule-day{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
-.schedule-day-header{background:var(--primary);color:#fff;padding:10px 16px;font-weight:600;font-size:14px}
-.schedule-slot{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:14px}
+.schedule-day-header{background:var(--primary);color:#fff;padding:9px 15px;font-weight:600;font-size:14px}
+.schedule-slot{display:flex;align-items:center;gap:10px;padding:9px 15px;border-bottom:1px solid var(--border);font-size:14px;flex-wrap:wrap}
 .schedule-slot:last-child{border-bottom:none}
-.slot-time{font-weight:600;color:var(--primary);min-width:56px;font-size:13px}
-.slot-info{flex:1}
+.slot-time{font-weight:600;color:var(--primary);min-width:50px;font-size:13px}
+.slot-info{flex:1;min-width:120px}
 .slot-name{font-weight:500}
-.slot-vaccine{font-size:12px;color:var(--text3)}
+.slot-sub{font-size:12px;color:var(--text3)}
 
-/* ===== RESPONSIVE ===== */
-@media(max-width:768px){
-  .sidebar{width:200px}
-  .main{margin-left:200px}
-  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
-  .content{padding:16px}
-}
-@media(max-width:600px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0}
-  .topbar{padding:12px 16px}
-}
-
-/* ===== MISC ===== */
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
-.muted{color:var(--text3);font-size:13px}
-.empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
-.empty-state .icon{font-size:40px;margin-bottom:8px}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.dose-result-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-sm);background:var(--surface2);margin-bottom:8px}
-.dose-num{width:60px;font-weight:700;color:var(--primary);font-size:13px}
+/* DOSE RESULT */
+.dose-result-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--surface2);margin-bottom:7px}
+.dose-num{min-width:60px;font-weight:700;color:var(--primary);font-size:13px}
 .dose-date{font-weight:600;font-size:15px}
 .dose-day{font-size:13px;color:var(--text3);margin-left:auto}
-.login-overlay{position:fixed;inset:0;background:rgba(15,76,117,0.95);z-index:500;display:flex;align-items:center;justify-content:center}
-.login-box{background:#fff;border-radius:var(--radius-lg);padding:32px;max-width:380px;width:100%;box-shadow:var(--shadow-md)}
+
+/* SUGGEST CARD */
+.suggest-card{border:1.5px solid var(--border2);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.suggest-card.selected{border-color:var(--primary-light);background:var(--info-bg)}
+.suggest-check{width:18px;height:18px;cursor:pointer;flex-shrink:0}
+.suggest-info{flex:1}
+
+/* LOGIN */
+.login-overlay{position:fixed;inset:0;background:rgba(15,76,117,.95);z-index:500;display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:var(--radius-lg);padding:30px;max-width:370px;width:100%}
 .login-box h2{color:var(--primary);margin-bottom:4px}
-.login-box p{color:var(--text3);font-size:14px;margin-bottom:20px}
+.login-box p{color:var(--text3);font-size:14px;margin-bottom:18px}
+
+/* MISC */
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.muted{color:var(--text3);font-size:13px}
+.empty-state{text-align:center;padding:36px 20px;color:var(--text3)}
+.empty-icon{font-size:36px;margin-bottom:6px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+.toggle-wrap{display:flex;align-items:center;gap:8px;margin-top:11px}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border2);border-radius:999px;transition:.2s}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked + .toggle-slider{background:var(--primary)}
+.toggle input:checked + .toggle-slider:before{transform:translateX(20px)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.mobile-open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .main{margin-left:0}
+  .hamburger{display:block}
+  .content{padding:14px 14px}
+  .grid-2,.grid-4{grid-template-columns:1fr}
+  .topbar{padding:10px 14px}
+  .auth-badge{display:none}
+}
+@media(max-width:480px){
+  .modal{padding:16px}
+  .btn{padding:8px 12px;font-size:13px}
+}
 </style>
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
+<!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
-    <div style="font-size:32px;margin-bottom:8px">💉</div>
+    <div style="font-size:30px;margin-bottom:6px">💉</div>
     <h2>VaxCare</h2>
     <p>ระบบนัดฉีดวัคซีนสำหรับเภสัชกร</p>
     <label>Email ผู้ดูแล</label>
     <input id="loginEmail" type="email" value="pharadmin@yourclinic.local" readonly/>
-    <label style="margin-top:12px">รหัสผ่าน</label>
+    <label style="margin-top:11px">รหัสผ่าน</label>
     <input id="loginPass" type="password" placeholder="ใส่รหัสผ่าน"/>
-    <div style="margin-top:16px;display:flex;gap:8px">
+    <div style="margin-top:14px;display:flex;gap:8px">
       <button class="btn btn-primary" style="flex:1" onclick="doLogin()">เข้าสู่ระบบ</button>
-      <button class="btn btn-outline" onclick="guestLogin()">ใช้งานแบบ Guest</button>
+      <button class="btn btn-outline" onclick="guestLogin()">Guest</button>
     </div>
     <p id="loginErr" style="color:#dc2626;font-size:13px;margin-top:8px;display:none"></p>
   </div>
 </div>
 
-<!-- APP -->
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <div class="app">
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <h1>💉 VaxCare</h1>
-      <p>ระบบนัดวัคซีน</p>
+      <p>ระบบนัดวัคซีน v2.1</p>
     </div>
     <nav class="nav">
-      <div class="nav-item active" data-page="dashboard">
-        <span class="nav-icon">📊</span> ภาพรวม
-      </div>
-      <div class="nav-item" data-page="calculate">
-        <span class="nav-icon">📅</span> คำนวณวันฉีด
-      </div>
-      <div class="nav-item" data-page="patients">
-        <span class="nav-icon">👤</span> ข้อมูลคนไข้
-      </div>
-      <div class="nav-item" data-page="appointments">
-        <span class="nav-icon">🗓️</span> ตารางนัดหมาย
-      </div>
-      <div class="nav-item" data-page="vaccines">
-        <span class="nav-icon">🧪</span> จัดการวัคซีน
-      </div>
-      <div class="nav-item" data-page="holidays">
-        <span class="nav-icon">🏖️</span> วันหยุด
-      </div>
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span>ภาพรวม</div>
+      <div class="nav-item" data-page="calculate"><span class="nav-icon">📅</span>คำนวณวันฉีด</div>
+      <div class="nav-item" data-page="patients"><span class="nav-icon">👤</span>ข้อมูลคนไข้</div>
+      <div class="nav-item" data-page="appointments"><span class="nav-icon">🗓️</span>ตารางนัดหมาย</div>
+      <div class="nav-item" data-page="vaccines"><span class="nav-icon">🧪</span>จัดการวัคซีน</div>
+      <div class="nav-item" data-page="holidays"><span class="nav-icon">🏖️</span>วันหยุด</div>
     </nav>
-    <div class="sidebar-footer">v2.0 · Firebase Cloud</div>
+    <div class="sidebar-footer">Firebase Cloud · Auto-holiday</div>
   </aside>
 
-  <!-- MAIN -->
   <div class="main">
     <div class="topbar">
-      <span class="topbar-title" id="pageTitle">ภาพรวม</span>
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="topbar-title" id="pageTitle">ภาพรวม</span>
+      </div>
       <div class="topbar-right">
         <span class="auth-badge" id="authBadge">กำลังโหลด...</span>
-        <button class="btn btn-outline btn-sm" id="logoutBtn" style="display:none" onclick="doLogout()">ออกจากระบบ</button>
+        <button class="btn btn-outline btn-sm" id="logoutBtn" style="display:none" onclick="doLogout()">ออก</button>
       </div>
     </div>
 
     <div class="content">
 
-      <!-- ===== DASHBOARD ===== -->
+      <!-- DASHBOARD -->
       <div id="page-dashboard" class="page active">
-        <div class="grid-4" style="margin-bottom:20px">
-          <div class="stat-card">
-            <div class="stat-label">นัดหมายวันนี้</div>
-            <div class="stat-value" id="stat-today">0</div>
-            <div class="stat-sub">รายการ</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">คนไข้ทั้งหมด</div>
-            <div class="stat-value" id="stat-patients">0</div>
-            <div class="stat-sub">คน</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">นัดสัปดาห์นี้</div>
-            <div class="stat-value" id="stat-week">0</div>
-            <div class="stat-sub">รายการ</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">ชนิดวัคซีน</div>
-            <div class="stat-value" id="stat-vaccines">0</div>
-            <div class="stat-sub">ชนิด</div>
-          </div>
+        <div class="grid-4" style="margin-bottom:18px">
+          <div class="stat-card"><div class="stat-label">นัดวันนี้</div><div class="stat-value" id="stat-today">0</div><div class="stat-sub">รายการ</div></div>
+          <div class="stat-card"><div class="stat-label">คนไข้ทั้งหมด</div><div class="stat-value" id="stat-patients">0</div><div class="stat-sub">คน</div></div>
+          <div class="stat-card"><div class="stat-label">นัดสัปดาห์นี้</div><div class="stat-value" id="stat-week">0</div><div class="stat-sub">รายการ</div></div>
+          <div class="stat-card"><div class="stat-label">ชนิดวัคซีน</div><div class="stat-value" id="stat-vaccines">0</div><div class="stat-sub">ชนิด</div></div>
         </div>
         <div class="grid-2">
-          <div class="card">
-            <div class="card-title">🗓️ นัดหมายวันนี้</div>
-            <div id="dashTodayList"><div class="empty-state"><div class="icon">📋</div>ไม่มีนัดหมายวันนี้</div></div>
-          </div>
-          <div class="card">
-            <div class="card-title">⏰ นัดหมายที่ใกล้มาถึง (7 วัน)</div>
-            <div id="dashUpcomingList"><div class="empty-state"><div class="icon">📋</div>ไม่มีนัดหมายที่ใกล้มาถึง</div></div>
-          </div>
+          <div class="card"><div class="card-title">🗓️ นัดหมายวันนี้</div><div id="dashTodayList"><div class="empty-state"><div class="empty-icon">📋</div>ไม่มีนัดวันนี้</div></div></div>
+          <div class="card"><div class="card-title">⏰ ใกล้มาถึง (7 วัน)</div><div id="dashUpcomingList"><div class="empty-state"><div class="empty-icon">📋</div>ไม่มีนัดใกล้มาถึง</div></div></div>
         </div>
       </div>
 
-      <!-- ===== CALCULATE ===== -->
+      <!-- CALCULATE -->
       <div id="page-calculate" class="page">
-        <div class="grid-2" style="margin-bottom:20px">
+        <div class="grid-2" style="margin-bottom:16px">
           <div class="card">
-            <div class="card-title">📅 คำนวณวันฉีด (จากเข็ม 1)</div>
-            <label>ชนิดวัคซีน</label>
-            <select id="calc1Vaccine"></select>
-            <label>วันที่ฉีดเข็ม 1</label>
-            <input type="date" id="calc1Date"/>
-            <div style="margin-top:14px;display:flex;gap:8px">
+            <div class="card-title">📅 คำนวณจากเข็ม 1</div>
+            <label>ชนิดวัคซีน</label><select id="calc1Vaccine"></select>
+            <label>วันที่ฉีดเข็ม 1</label><input type="date" id="calc1Date"/>
+            <div style="margin-top:12px;display:flex;gap:8px">
               <button class="btn btn-primary" onclick="calcFromDose1()">✅ คำนวณ</button>
-              <button class="btn btn-outline" onclick="saveFromCalcToAppt()">📌 บันทึกนัดหมาย</button>
+              <button class="btn btn-outline" onclick="saveFromCalcToAppt()">📌 บันทึกนัด</button>
             </div>
-            <div id="calc1Result" style="margin-top:16px"></div>
+            <div id="calc1Result" style="margin-top:14px"></div>
           </div>
           <div class="card">
-            <div class="card-title">📆 คำนวณเข็มถัดไป (จากเข็มล่าสุด)</div>
-            <label>ชนิดวัคซีน</label>
-            <select id="calc2Vaccine"></select>
+            <div class="card-title">📆 คำนวณเข็มถัดไป</div>
+            <label>ชนิดวัคซีน</label><select id="calc2Vaccine"></select>
             <label>เข็มที่ล่าสุดที่ฉีด</label>
-            <select id="calc2DoseNum">
-              <option value="1">เข็ม 1</option>
-              <option value="2">เข็ม 2</option>
-              <option value="3">เข็ม 3</option>
-            </select>
-            <label>วันที่ฉีดเข็มล่าสุด</label>
-            <input type="date" id="calc2Date"/>
-            <div style="margin-top:14px">
-              <button class="btn btn-primary" onclick="calcNextDose()">✅ คำนวณเข็มถัดไป</button>
-            </div>
-            <div id="calc2Result" style="margin-top:16px"></div>
+            <select id="calc2DoseNum"><option value="1">เข็ม 1</option><option value="2">เข็ม 2</option><option value="3">เข็ม 3</option><option value="4">เข็ม 4</option></select>
+            <label>วันที่ฉีดเข็มนั้น</label><input type="date" id="calc2Date"/>
+            <div style="margin-top:12px"><button class="btn btn-primary" onclick="calcNextDose()">✅ คำนวณ</button></div>
+            <div id="calc2Result" style="margin-top:14px"></div>
           </div>
         </div>
         <div class="card">
-          <div class="card-title">📋 ข้อมูลระยะห่างวัคซีน</div>
+          <div class="card-title">📋 ตารางระยะห่างวัคซีน</div>
           <div class="table-wrap">
-            <table id="vaccineInfoTable">
-              <thead><tr><th>ชื่อวัคซีน</th><th>จำนวนเข็ม</th><th>เข็ม 2</th><th>เข็ม 3</th><th>เข็ม 4</th></tr></thead>
-              <tbody id="vaccineInfoBody"></tbody>
-            </table>
+            <table><thead><tr><th>ชื่อวัคซีน</th><th>เข็ม</th><th>เข็ม 2</th><th>เข็ม 3</th><th>เข็ม 4</th><th>เข็ม 5</th><th>เลื่อนวันหยุดได้</th></tr></thead>
+            <tbody id="vaccineInfoBody"></tbody></table>
           </div>
         </div>
       </div>
 
-      <!-- ===== PATIENTS ===== -->
+      <!-- PATIENTS -->
       <div id="page-patients" class="page">
         <div class="section-header">
           <div></div>
-          <button class="btn btn-primary" onclick="openPatientModal()">➕ เพิ่มคนไข้ใหม่</button>
+          <button class="btn btn-primary" onclick="openPatientModal()">➕ เพิ่มคนไข้</button>
         </div>
-        <div class="card" style="margin-bottom:16px">
-          <input type="text" id="patientSearch" placeholder="🔍 ค้นหาชื่อ หรือเบอร์โทร..." oninput="filterPatients()"/>
+        <div class="card" style="margin-bottom:14px">
+          <input type="text" id="patientSearch" placeholder="🔍 ค้นหาชื่อ, HN, หรือเบอร์โทร..." oninput="filterPatients()"/>
         </div>
         <div class="table-wrap">
-          <table>
-            <thead><tr><th>ชื่อ-นามสกุล</th><th>เบอร์โทร</th><th>Line ID</th><th>วันเกิด / อายุ</th><th>ประวัติการฉีด</th><th>จัดการ</th></tr></thead>
-            <tbody id="patientTableBody"></tbody>
-          </table>
+          <table><thead><tr><th>HN</th><th>ชื่อ-นามสกุล</th><th>เบอร์โทร</th><th>Line ID</th><th>อายุ</th><th>ประวัติ</th><th>จัดการ</th></tr></thead>
+          <tbody id="patientTableBody"></tbody></table>
         </div>
       </div>
 
-      <!-- ===== APPOINTMENTS ===== -->
+      <!-- APPOINTMENTS -->
       <div id="page-appointments" class="page">
         <div class="section-header">
           <div class="row">
-            <label style="margin:0">วันที่:</label>
+            <label style="margin:0;white-space:nowrap">วันที่:</label>
             <input type="date" id="apptDateFilter" style="width:auto" oninput="renderAppointments()"/>
             <button class="btn btn-outline btn-sm" onclick="setApptToday()">วันนี้</button>
           </div>
@@ -323,90 +314,83 @@ tr:hover td{background:var(--surface2)}
         <div id="appointmentList"></div>
       </div>
 
-      <!-- ===== VACCINES ===== -->
+      <!-- VACCINES -->
       <div id="page-vaccines" class="page">
         <div class="grid-2">
           <div class="card">
             <div class="card-title">🧪 เพิ่ม/แก้ไขวัคซีน</div>
-            <p class="muted" style="margin-bottom:12px">รองรับสูงสุด 4 เข็ม กรอกระยะห่างเป็น <b>เดือน</b> (30 วัน)</p>
+            <p class="muted" style="margin-bottom:12px">รองรับสูงสุด 5 เข็ม • กำหนดระยะห่างเป็นวันหรือเดือน</p>
             <input type="hidden" id="editVaccineId"/>
-            <label>ชื่อวัคซีน</label>
-            <input type="text" id="vName" placeholder="เช่น HPV-9 (15+ ปี)"/>
-            <label>จำนวนเข็ม</label>
-            <select id="vDoses">
-              <option value="1">1 เข็ม</option>
-              <option value="2">2 เข็ม</option>
-              <option value="3">3 เข็ม</option>
-              <option value="4">4 เข็ม</option>
+            <label>ชื่อวัคซีน</label><input type="text" id="vName" placeholder="เช่น Rabies"/>
+            <label>จำนวนเข็มทั้งหมด</label>
+            <select id="vDoses" onchange="renderVaccineIntervalFields()">
+              <option value="1">1 เข็ม</option><option value="2">2 เข็ม</option>
+              <option value="3">3 เข็ม</option><option value="4">4 เข็ม</option><option value="5">5 เข็ม</option>
             </select>
-            <label>ระยะห่างเข็ม 2 (เดือนจากเข็ม 1)</label>
-            <input type="number" id="vM2" min="0" step="0.1" placeholder="เช่น 1"/>
-            <label>ระยะห่างเข็ม 3 (เดือนจากเข็ม 1)</label>
-            <input type="number" id="vM3" min="0" step="0.1" placeholder="เช่น 6"/>
-            <label>ระยะห่างเข็ม 4 (เดือนจากเข็ม 1)</label>
-            <input type="number" id="vM4" min="0" step="0.1" placeholder="เช่น 12"/>
-            <div style="margin-top:16px;display:flex;gap:8px">
-              <button class="btn btn-primary" id="saveVaccineBtn" onclick="saveVaccine()">💾 บันทึก</button>
-              <button class="btn btn-outline" onclick="resetVaccineForm()">🧹 ล้างฟอร์ม</button>
+            <div id="vaccineIntervalFields"></div>
+            <div class="toggle-wrap" style="margin-top:14px">
+              <label class="toggle"><input type="checkbox" id="vAllowReschedule" checked/><span class="toggle-slider"></span></label>
+              <span style="font-size:14px">อนุญาตให้เลื่อนวันตามวันหยุด</span>
             </div>
-            <div id="vaccineFormStatus" style="margin-top:8px;font-size:13px;color:var(--success)"></div>
+            <p class="muted" style="margin-top:4px">ปิด = วันฉีดตามกำหนดเป๊ะๆ (เช่น วัคซีนพิษสุนัขบ้า)</p>
+            <div style="margin-top:14px;display:flex;gap:8px">
+              <button class="btn btn-primary" id="saveVaccineBtn" onclick="saveVaccine()">💾 บันทึก</button>
+              <button class="btn btn-outline" onclick="resetVaccineForm()">🧹 ล้าง</button>
+            </div>
           </div>
           <div>
             <div class="table-wrap">
-              <table>
-                <thead><tr><th>ชื่อวัคซีน</th><th>เข็ม</th><th>เข็ม2</th><th>เข็ม3</th><th>จัดการ</th></tr></thead>
-                <tbody id="vaccineTableBody"></tbody>
-              </table>
+              <table><thead><tr><th>ชื่อวัคซีน</th><th>เข็ม</th><th>เข็ม 2</th><th>เข็ม 3</th><th>เลื่อนได้</th><th>จัดการ</th></tr></thead>
+              <tbody id="vaccineTableBody"></tbody></table>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ===== HOLIDAYS ===== -->
+      <!-- HOLIDAYS -->
       <div id="page-holidays" class="page">
         <div class="grid-2">
           <div class="card">
             <div class="card-title">🏖️ เพิ่มวันหยุดพิเศษของร้าน</div>
-            <label>วันที่หยุด</label>
-            <input type="date" id="newHolidayDate"/>
-            <label>ชื่อ/หมายเหตุ</label>
-            <input type="text" id="newHolidayNote" placeholder="เช่น วันหยุดพิเศษของร้าน"/>
-            <button class="btn btn-primary" style="margin-top:12px" onclick="addHoliday()">➕ เพิ่มวันหยุด</button>
+            <label>วันที่หยุด</label><input type="date" id="newHolidayDate"/>
+            <label>ชื่อ/หมายเหตุ</label><input type="text" id="newHolidayNote" placeholder="เช่น ปิดทำการพิเศษ"/>
+            <button class="btn btn-primary" style="margin-top:12px" onclick="addHoliday()">➕ เพิ่ม</button>
           </div>
           <div class="card">
-            <div class="card-title">📋 รายการวันหยุดทั้งหมด</div>
-            <div id="holidayList"></div>
+            <div class="card-title">📋 วันหยุดพิเศษของร้าน</div>
+            <div id="holidayList"><p class="muted">ยังไม่มีวันหยุดพิเศษ</p></div>
           </div>
         </div>
-        <div class="card" style="margin-top:16px">
-          <div class="card-title">📅 วันหยุดราชการไทย 2568–2569</div>
-          <div id="officialHolidayList"></div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-title">
+            📅 วันหยุดราชการไทย
+            <span class="badge badge-blue" id="holidayYearBadge">กำลังโหลด...</span>
+            <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="loadOfficialHolidays()">🔄 โหลดใหม่</button>
+          </div>
+          <div id="officialHolidayList"><p class="muted">กำลังดึงข้อมูลวันหยุดอัตโนมัติ...</p></div>
         </div>
       </div>
 
-    </div><!-- end content -->
-  </div><!-- end main -->
-</div><!-- end app -->
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: PATIENT -->
 <div class="modal-bg" id="patientModal">
   <div class="modal">
-    <div class="modal-header">
-      <h2 id="patientModalTitle">เพิ่มคนไข้ใหม่</h2>
-      <button class="modal-close" onclick="closeModal('patientModal')">✕</button>
-    </div>
+    <div class="modal-header"><h2 id="patientModalTitle">เพิ่มคนไข้ใหม่</h2><button class="modal-close" onclick="closeModal('patientModal')">✕</button></div>
     <input type="hidden" id="patientModalId"/>
-    <label>ชื่อ-นามสกุล *</label>
-    <input type="text" id="pName" placeholder="ชื่อเต็ม"/>
-    <label>เบอร์โทรศัพท์</label>
-    <input type="tel" id="pPhone" placeholder="08x-xxx-xxxx"/>
-    <label>Line ID</label>
-    <input type="text" id="pLine" placeholder="@lineid"/>
-    <label>วันเกิด</label>
-    <input type="date" id="pDOB"/>
-    <label>โรคประจำตัว / หมายเหตุ</label>
-    <textarea id="pNote" rows="3" placeholder="ถ้าไม่มีใส่เป็น -"></textarea>
-    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+    <div class="grid-2">
+      <div><label>HN (รหัสคนไข้)</label><input type="text" id="pHN" placeholder="เช่น HN-00123"/></div>
+      <div><label>ชื่อ-นามสกุล *</label><input type="text" id="pName" placeholder="ชื่อเต็ม"/></div>
+    </div>
+    <div class="grid-2">
+      <div><label>เบอร์โทรศัพท์</label><input type="tel" id="pPhone" placeholder="08x-xxx-xxxx"/></div>
+      <div><label>Line ID</label><input type="text" id="pLine" placeholder="@lineid"/></div>
+    </div>
+    <label>วันเกิด</label><input type="date" id="pDOB"/>
+    <label>โรคประจำตัว / หมายเหตุ</label><textarea id="pNote" rows="2" placeholder="ถ้าไม่มีใส่เป็น -"></textarea>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-outline" onclick="closeModal('patientModal')">ยกเลิก</button>
       <button class="btn btn-primary" onclick="savePatient()">💾 บันทึก</button>
     </div>
@@ -416,66 +400,66 @@ tr:hover td{background:var(--surface2)}
 <!-- MODAL: APPOINTMENT -->
 <div class="modal-bg" id="apptModal">
   <div class="modal">
-    <div class="modal-header">
-      <h2>สร้างนัดหมาย</h2>
-      <button class="modal-close" onclick="closeModal('apptModal')">✕</button>
-    </div>
+    <div class="modal-header"><h2>สร้างนัดหมาย</h2><button class="modal-close" onclick="closeModal('apptModal')">✕</button></div>
     <input type="hidden" id="apptModalId"/>
-    <label>คนไข้ *</label>
-    <select id="apptPatient">
-      <option value="">-- เลือกคนไข้ --</option>
-    </select>
+    <label>คนไข้ * (พิมพ์ชื่อหรือ HN เพื่อค้นหา)</label>
+    <div class="ac-wrap">
+      <input type="text" id="acInput" placeholder="🔍 พิมพ์ชื่อหรือ HN..." autocomplete="off" oninput="acFilter()" onfocus="acFilter()"/>
+      <div class="ac-dropdown" id="acDropdown"></div>
+      <input type="hidden" id="apptPatient"/>
+    </div>
     <label>วัคซีน *</label>
-    <select id="apptVaccine" onchange="updateApptDoseOptions()">
-      <option value="">-- เลือกวัคซีน --</option>
-    </select>
+    <select id="apptVaccine" onchange="updateApptDoseOptions()"><option value="">-- เลือกวัคซีน --</option></select>
     <label>เข็มที่</label>
-    <select id="apptDose">
-      <option value="1">เข็ม 1</option>
-    </select>
-    <label>วันที่นัด *</label>
-    <input type="date" id="apptDate"/>
-    <label>เวลานัด</label>
-    <input type="time" id="apptTime" value="09:00"/>
-    <label>หมายเหตุ</label>
-    <input type="text" id="apptNote" placeholder="ถ้าไม่มีว่างไว้"/>
-    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+    <select id="apptDose"><option value="1">เข็ม 1</option></select>
+    <label>วันที่นัด *</label><input type="date" id="apptDate"/>
+    <label>เวลานัด</label><input type="time" id="apptTime" value="09:00"/>
+    <label>หมายเหตุ</label><input type="text" id="apptNote" placeholder="ถ้าไม่มีว่างไว้"/>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-outline" onclick="closeModal('apptModal')">ยกเลิก</button>
       <button class="btn btn-primary" onclick="saveAppt()">💾 บันทึกนัด</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: PATIENT HISTORY -->
-<div class="modal-bg" id="historyModal">
-  <div class="modal" style="max-width:680px">
-    <div class="modal-header">
-      <h2 id="historyModalTitle">ประวัติการฉีดวัคซีน</h2>
-      <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
-    </div>
-    <div id="historyModalContent"></div>
-    <div style="margin-top:16px;text-align:right">
-      <button class="btn btn-primary" id="historyAddApptBtn">➕ สร้างนัดหมายถัดไป</button>
+<!-- MODAL: SUGGEST NEXT DOSES -->
+<div class="modal-bg" id="suggestModal">
+  <div class="modal">
+    <div class="modal-header"><h2>📅 บันทึกนัดเข็มถัดไป</h2><button class="modal-close" onclick="closeModal('suggestModal')">✕</button></div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:14px">ระบบคำนวณวันนัดเข็มถัดไปให้อัตโนมัติ เลือกเข็มที่ต้องการบันทึก</p>
+    <div id="suggestContent"></div>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal('suggestModal')">ข้าม</button>
+      <button class="btn btn-primary" onclick="saveAllSuggestedAppts()">💾 บันทึกที่เลือก</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST CONTAINER -->
+<!-- MODAL: HISTORY -->
+<div class="modal-bg" id="historyModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header"><h2 id="historyModalTitle">ประวัติการฉีดวัคซีน</h2><button class="modal-close" onclick="closeModal('historyModal')">✕</button></div>
+    <div id="historyModalContent"></div>
+    <div style="margin-top:14px;text-align:right">
+      <button class="btn btn-primary" id="historyAddApptBtn">➕ สร้างนัดหมาย</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDtkMsN4siS7XnxLizkbHPcvIlzXn0kbXA",
-  authDomain: "project-owner-testing.firebaseapp.com",
-  projectId: "project-owner-testing",
-  storageBucket: "project-owner-testing.firebasestorage.app",
-  messagingSenderId: "1099045592618",
-  appId: "1:1099045592618:web:3e0c3e331adf1e14a82d53"
+  apiKey:"AIzaSyDtkMsN4siS7XnxLizkbHPcvIlzXn0kbXA",
+  authDomain:"project-owner-testing.firebaseapp.com",
+  projectId:"project-owner-testing",
+  storageBucket:"project-owner-testing.firebasestorage.app",
+  messagingSenderId:"1099045592618",
+  appId:"1:1099045592618:web:3e0c3e331adf1e14a82d53"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -483,87 +467,160 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const ADMIN_EMAIL = 'pharadmin@yourclinic.local';
 
-// ===== DATA =====
-const FALLBACK_VACCINES = [
-  {id:'Shingrix',name:'Shingrix',doses:2,months:[0,2,null,null]},
-  {id:'Varivax',name:'Varivax',doses:2,months:[0,1,null,null]},
-  {id:'Speeda',name:'Speeda',doses:2,months:[0,7/30,null,null]},
-  {id:'Engerix-B',name:'Engerix-B',doses:3,months:[0,1,6,null]},
-  {id:'HPV-4-under15',name:'HPV-4 (น้อยกว่า 15 ปี)',doses:2,months:[0,6,null,null]},
-  {id:'HPV-4-15up',name:'HPV-4 (15 ปีขึ้นไป)',doses:3,months:[0,1,6,null]},
-  {id:'HPV-9-under15',name:'HPV-9 (น้อยกว่า 15 ปี)',doses:2,months:[0,6,null,null]},
-  {id:'HPV-9-15up',name:'HPV-9 (15 ปีขึ้นไป)',doses:3,months:[0,1,6,null]},
-  {id:'Qdenga',name:'Qdenga',doses:2,months:[0,3,null,null]},
-  {id:'Prevnar15',name:'Prevnar 15',doses:2,months:[0,2,null,null]},
-  {id:'Flu4',name:'Flu4',doses:1,months:[0,null,null,null]},
-  {id:'Flu4HD',name:'Flu4 High Dose',doses:1,months:[0,null,null,null]},
-  {id:'PCV20',name:'PCV20',doses:1,months:[0,null,null,null]},
-  {id:'PPSV23',name:'PPSV23',doses:1,months:[0,1825/30,null,null]},
-  {id:'Tdap',name:'Tdap',doses:1,months:[0,3650/30,null,null]},
-  {id:'RSV',name:'RSV',doses:1,months:[0,null,null,null]},
-];
-
-const OFFICIAL_HOLIDAYS = new Set([
+// ===== FALLBACK DATA =====
+const FALLBACK_HOLIDAYS_ARR = [
   "2025-01-01","2025-02-12","2025-04-06","2025-04-13","2025-04-14","2025-04-15",
   "2025-05-01","2025-05-05","2025-05-13","2025-07-13","2025-07-14","2025-08-12",
   "2025-10-23","2025-12-05","2025-12-10","2025-12-31",
   "2026-01-01","2026-02-02","2026-04-06","2026-04-13","2026-04-14","2026-04-15",
   "2026-05-01","2026-05-05","2026-05-24","2026-07-12","2026-07-13","2026-08-12",
   "2026-10-23","2026-12-05","2026-12-10","2026-12-31"
-]);
+];
 
+const FALLBACK_VACCINES_RAW = [
+  {name:'Shingrix',doses:2,months:[0,2,null,null,null]},
+  {name:'Varivax',doses:2,months:[0,1,null,null,null]},
+  {name:'Speeda',doses:2,months:[0,7/30,null,null,null]},
+  {name:'Engerix-B',doses:3,months:[0,1,6,null,null]},
+  {name:'HPV-4 (น้อยกว่า 15 ปี)',doses:2,months:[0,6,null,null,null]},
+  {name:'HPV-4 (15 ปีขึ้นไป)',doses:3,months:[0,1,6,null,null]},
+  {name:'HPV-9 (น้อยกว่า 15 ปี)',doses:2,months:[0,6,null,null,null]},
+  {name:'HPV-9 (15 ปีขึ้นไป)',doses:3,months:[0,1,6,null,null]},
+  {name:'Qdenga',doses:2,months:[0,3,null,null,null]},
+  {name:'Prevnar 15',doses:2,months:[0,2,null,null,null]},
+  {name:'Flu4',doses:1,months:[0,null,null,null,null]},
+  {name:'Flu4 High Dose',doses:1,months:[0,null,null,null,null]},
+  {name:'PCV20',doses:1,months:[0,null,null,null,null]},
+  {name:'PPSV23',doses:2,months:[0,1825/30,null,null,null]},
+  {name:'Tdap',doses:1,months:[0,3650/30,null,null,null]},
+  {name:'RSV',doses:1,months:[0,null,null,null,null]},
+];
+
+// ===== GLOBALS =====
 window._vaccines = [];
 window._patients = [];
 window._appointments = [];
 window._customHolidays = [];
+window._officialHolidays = new Set(FALLBACK_HOLIDAYS_ARR);
 window._isAdmin = false;
-window._db = db;
-window._auth = auth;
-window._ADMIN_EMAIL = ADMIN_EMAIL;
+window._suggestedAppts = [];
+window._vaccineFormUnits = {2:'months',3:'months',4:'months',5:'months'};
 
 // ===== UTILS =====
 const pad2 = n => String(n).padStart(2,'0');
 const toYMD = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
 const toDMY = d => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;
 const thaiDay = d => ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][d.getDay()];
-
-function isHoliday(d){
-  if(d.getDay()===0||d.getDay()===6) return true;
-  const ymd = toYMD(d);
-  if(OFFICIAL_HOLIDAYS.has(ymd)) return true;
-  if(window._customHolidays.some(h=>h.date===ymd)) return true;
-  return false;
-}
-function nextWorkday(d){
-  const r = new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  while(isHoliday(r)) r.setDate(r.getDate()+1);
-  return r;
-}
-function addDaysRollForward(start, days){
-  const d = new Date(start.getFullYear(),start.getMonth(),start.getDate());
-  d.setDate(d.getDate()+days);
-  return nextWorkday(d);
-}
 function calcAge(dob){
   if(!dob) return '';
-  const d = new Date(dob), now = new Date();
-  let age = now.getFullYear()-d.getFullYear();
+  const d=new Date(dob+' 00:00'),now=new Date();
+  let age=now.getFullYear()-d.getFullYear();
   if(now.getMonth()<d.getMonth()||(now.getMonth()===d.getMonth()&&now.getDate()<d.getDate())) age--;
   return age+'ปี';
 }
+
+function normalizeVaccine(v){
+  if(v.intervals) return {...v, allowReschedule: v.allowReschedule!==false};
+  const months = v.months || [];
+  const intervals = [];
+  for(let i=0;i<5;i++){
+    const m = months[i];
+    if(i===0||m==null){intervals.push(null);continue;}
+    if(m>=1) intervals.push({value:m,unit:'months'});
+    else intervals.push({value:Math.round(m*30),unit:'days'});
+  }
+  return {...v, intervals, allowReschedule: v.allowReschedule!==false};
+}
+
+function intervalToDays(iv){
+  if(!iv) return 0;
+  return iv.unit==='days' ? Math.round(iv.value) : Math.round(iv.value*30);
+}
+
+function fmtInterval(iv){
+  if(!iv) return '-';
+  if(iv.unit==='days') return `${iv.value} วัน`;
+  const v = iv.value;
+  if(v>=1) return `${v} เดือน`;
+  return `${Math.round(v*30)} วัน`;
+}
+
+function isHoliday(d){
+  if(d.getDay()===0||d.getDay()===6) return true;
+  const ymd=toYMD(d);
+  if(window._officialHolidays.has(ymd)) return true;
+  if(window._customHolidays.some(h=>h.date===ymd)) return true;
+  return false;
+}
+
+function calcDoseDate(base, intervalObj, allowReschedule){
+  const days = intervalToDays(intervalObj);
+  const d = new Date(base.getFullYear(),base.getMonth(),base.getDate());
+  d.setDate(d.getDate()+days);
+  if(allowReschedule!==false){
+    while(isHoliday(d)) d.setDate(d.getDate()+1);
+  }
+  return d;
+}
+
 window.showToast = function(msg,type='info'){
-  const c = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className=`toast ${type}`;
-  t.textContent=msg;
-  c.appendChild(t);
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=msg; c.appendChild(t);
   setTimeout(()=>t.remove(),2800);
+}
+
+// ===== HOLIDAY AUTO-FETCH =====
+window.loadOfficialHolidays = async function(){
+  document.getElementById('officialHolidayList').innerHTML='<p class="muted">กำลังดึงข้อมูล...</p>';
+  const now = new Date();
+  const years = [now.getFullYear(), now.getFullYear()+1, now.getFullYear()+2];
+  const allDates = [];
+  let loaded = false;
+  for(const year of years){
+    try{
+      const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/TH`);
+      if(!res.ok) continue;
+      const data = await res.json();
+      data.forEach(h=>allDates.push(h.date));
+      loaded = true;
+    }catch(e){ console.warn('Holiday fetch error',year,e); }
+  }
+  if(loaded && allDates.length>0){
+    window._officialHolidays = new Set(allDates);
+    const y1=years[0],y2=years[years.length-1];
+    document.getElementById('holidayYearBadge').textContent=`${y1}–${y2} (Auto)`;
+    showToast(`โหลดวันหยุดราชการ ${y1}–${y2} สำเร็จ`,'success');
+  }else{
+    window._officialHolidays = new Set(FALLBACK_HOLIDAYS_ARR);
+    document.getElementById('holidayYearBadge').textContent='2568–2569 (Fallback)';
+    showToast('ใช้ข้อมูลวันหยุดสำรอง','info');
+  }
+  renderOfficialHolidays();
+}
+
+function renderOfficialHolidays(){
+  const el=document.getElementById('officialHolidayList');
+  const list=[...window._officialHolidays].sort();
+  el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:7px">${list.map(h=>{
+    const [y,m,d]=h.split('-');const dt=new Date(+y,+m-1,+d);
+    return `<span class="badge badge-blue">${toDMY(dt)} ${thaiDay(dt)}</span>`;
+  }).join('')}</div>`;
+}
+
+// ===== MOBILE =====
+window.toggleSidebar = function(){
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+window.closeSidebar = function(){
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
 }
 
 // ===== AUTH =====
 window.doLogin = async function(){
-  const email = document.getElementById('loginEmail').value;
-  const pass = document.getElementById('loginPass').value;
+  const email=document.getElementById('loginEmail').value;
+  const pass=document.getElementById('loginPass').value;
   if(!pass){document.getElementById('loginErr').textContent='กรุณาใส่รหัสผ่าน';document.getElementById('loginErr').style.display='';return;}
   try{
     await signInWithEmailAndPassword(auth,email,pass);
@@ -576,51 +633,41 @@ window.doLogin = async function(){
 }
 window.guestLogin = function(){
   document.getElementById('loginOverlay').style.display='none';
-  showToast('เข้าสู่ระบบในฐานะ Guest (อ่านอย่างเดียว)','info');
+  showToast('Guest Mode (อ่านอย่างเดียว)','info');
 }
 window.doLogout = function(){ signOut(auth); document.getElementById('loginOverlay').style.display='flex'; }
 
-onAuthStateChanged(auth, user=>{
-  const isAdmin = !!user && user.email===ADMIN_EMAIL;
-  window._isAdmin = isAdmin;
-  document.getElementById('authBadge').textContent = isAdmin ? `👑 ${user.email}` : 'Guest · อ่านอย่างเดียว';
-  document.getElementById('logoutBtn').style.display = isAdmin?'':'none';
-  document.getElementById('saveVaccineBtn').disabled = !isAdmin;
+onAuthStateChanged(auth,user=>{
+  const isAdmin=!!user&&user.email===ADMIN_EMAIL;
+  window._isAdmin=isAdmin;
+  document.getElementById('authBadge').textContent=isAdmin?`👑 Admin`:user?user.email:'Guest';
+  document.getElementById('logoutBtn').style.display=isAdmin?'':'none';
+  if(document.getElementById('saveVaccineBtn')) document.getElementById('saveVaccineBtn').disabled=!isAdmin;
 });
 
-// ===== FIRESTORE LISTENERS =====
-onSnapshot(collection(db,'vaccines'), snap=>{
-  const arr = snap.docs.map(d=>({id:d.id,...d.data()}));
-  window._vaccines = arr.length>0 ? arr : FALLBACK_VACCINES;
-  refreshVaccineDropdowns();
-  renderVaccineTable();
-  renderVaccineInfoTable();
-  updateStats();
-  if(arr.length===0) showToast('ใช้ข้อมูลวัคซีนตัวอย่าง (ยังไม่มีใน Cloud)');
-}, err=>{
-  window._vaccines = FALLBACK_VACCINES;
-  refreshVaccineDropdowns();
-  renderVaccineTable();
-  renderVaccineInfoTable();
-  updateStats();
+// ===== FIREBASE LISTENERS =====
+onSnapshot(collection(db,'vaccines'),snap=>{
+  const arr=snap.docs.map(d=>normalizeVaccine({id:d.id,...d.data()}));
+  window._vaccines=arr.length>0?arr:FALLBACK_VACCINES_RAW.map(v=>normalizeVaccine({id:v.name,...v}));
+  refreshVaccineDropdowns(); renderVaccineTable(); renderVaccineInfoTable(); updateStats();
+  if(arr.length===0) showToast('ใช้ข้อมูลวัคซีนตัวอย่าง');
+},err=>{
+  window._vaccines=FALLBACK_VACCINES_RAW.map(v=>normalizeVaccine({id:v.name,...v}));
+  refreshVaccineDropdowns(); renderVaccineTable(); renderVaccineInfoTable(); updateStats();
 });
 
-onSnapshot(collection(db,'patients'), snap=>{
-  window._patients = snap.docs.map(d=>({id:d.id,...d.data()}));
-  renderPatientTable();
-  refreshPatientDropdown();
-  updateStats();
+onSnapshot(collection(db,'patients'),snap=>{
+  window._patients=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderPatientTable(); refreshPatientAutocomplete(); updateStats();
 });
 
-onSnapshot(collection(db,'appointments'), snap=>{
-  window._appointments = snap.docs.map(d=>({id:d.id,...d.data()}));
-  renderAppointments();
-  renderDashboard();
-  updateStats();
+onSnapshot(collection(db,'appointments'),snap=>{
+  window._appointments=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderAppointments(); renderDashboard(); updateStats();
 });
 
-onSnapshot(collection(db,'holidays'), snap=>{
-  window._customHolidays = snap.docs.map(d=>({id:d.id,...d.data()}));
+onSnapshot(collection(db,'holidays'),snap=>{
+  window._customHolidays=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderHolidayList();
 });
 
@@ -629,193 +676,198 @@ document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click',()=>{
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     item.classList.add('active');
-    const page = item.dataset.page;
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page-'+page).classList.add('active');
-    document.getElementById('pageTitle').textContent = item.textContent.trim();
+    document.getElementById('page-'+item.dataset.page).classList.add('active');
+    document.getElementById('pageTitle').textContent=item.textContent.trim();
+    closeSidebar();
   });
 });
 
 // ===== STATS =====
 function updateStats(){
-  document.getElementById('stat-patients').textContent = window._patients.length;
-  document.getElementById('stat-vaccines').textContent = window._vaccines.length;
-  const today = toYMD(new Date());
-  const todayAppts = window._appointments.filter(a=>a.date===today);
-  document.getElementById('stat-today').textContent = todayAppts.length;
-  const in7 = new Date(); in7.setDate(in7.getDate()+7);
-  const in7str = toYMD(in7);
-  const weekAppts = window._appointments.filter(a=>a.date>=today && a.date<=in7str);
-  document.getElementById('stat-week').textContent = weekAppts.length;
+  document.getElementById('stat-patients').textContent=window._patients.length;
+  document.getElementById('stat-vaccines').textContent=window._vaccines.length;
+  const today=toYMD(new Date());
+  document.getElementById('stat-today').textContent=window._appointments.filter(a=>a.date===today).length;
+  const in7=new Date(); in7.setDate(in7.getDate()+7);
+  document.getElementById('stat-week').textContent=window._appointments.filter(a=>a.date>=today&&a.date<=toYMD(in7)).length;
 }
 
 // ===== DASHBOARD =====
 function renderDashboard(){
-  const today = toYMD(new Date());
-  const todayAppts = window._appointments.filter(a=>a.date===today).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-  const in7 = new Date(); in7.setDate(in7.getDate()+7);
-  const in7str = toYMD(in7);
-  const upcoming = window._appointments.filter(a=>a.date>today && a.date<=in7str).sort((a,b)=>a.date.localeCompare(b.date));
-
-  const todayEl = document.getElementById('dashTodayList');
-  if(todayAppts.length===0){
-    todayEl.innerHTML='<div class="empty-state"><div class="icon">📋</div>ไม่มีนัดหมายวันนี้</div>';
-  }else{
-    todayEl.innerHTML = todayAppts.map(a=>{
-      const p = window._patients.find(pt=>pt.id===a.patientId);
-      return `<div class="schedule-slot">
-        <span class="slot-time">${a.time||'-'}</span>
-        <div class="slot-info">
-          <div class="slot-name">${p?p.name:'ไม่ทราบ'}</div>
-          <div class="slot-vaccine">${a.vaccine} · เข็ม ${a.dose}</div>
-        </div>
-        <span class="badge badge-green">วันนี้</span>
-      </div>`;
-    }).join('');
-  }
-
-  const upEl = document.getElementById('dashUpcomingList');
-  if(upcoming.length===0){
-    upEl.innerHTML='<div class="empty-state"><div class="icon">📋</div>ไม่มีนัดหมายที่ใกล้มาถึง</div>';
-  }else{
-    upEl.innerHTML = upcoming.slice(0,6).map(a=>{
-      const p = window._patients.find(pt=>pt.id===a.patientId);
-      const [y,m,d] = a.date.split('-');
-      const dt = new Date(+y,+m-1,+d);
-      return `<div class="schedule-slot">
-        <span class="slot-time">${a.time||''}</span>
-        <div class="slot-info">
-          <div class="slot-name">${p?p.name:'ไม่ทราบ'}</div>
-          <div class="slot-vaccine">${a.vaccine} · เข็ม ${a.dose}</div>
-        </div>
-        <span class="badge badge-blue">${toDMY(dt)}</span>
-      </div>`;
-    }).join('');
-  }
+  const today=toYMD(new Date());
+  const in7=new Date(); in7.setDate(in7.getDate()+7);
+  const todayA=window._appointments.filter(a=>a.date===today).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const upA=window._appointments.filter(a=>a.date>today&&a.date<=toYMD(in7)).sort((a,b)=>a.date.localeCompare(b.date));
+  const slotHtml=(a,cls)=>{
+    const p=window._patients.find(pt=>pt.id===a.patientId);
+    const [y,m,d]=a.date.split('-');const dt=new Date(+y,+m-1,+d);
+    return `<div class="schedule-slot">
+      <span class="slot-time">${a.time||'-'}</span>
+      <div class="slot-info"><div class="slot-name">${p?`${p.hn?'['+p.hn+'] ':''}${p.name}`:'ไม่ทราบ'}</div>
+      <div class="slot-sub">${a.vaccine} · เข็ม ${a.dose}</div></div>
+      <span class="badge ${cls}">${cls==='badge-green'?'วันนี้':toDMY(dt)}</span></div>`;
+  };
+  document.getElementById('dashTodayList').innerHTML=todayA.length?todayA.map(a=>slotHtml(a,'badge-green')).join(''):'<div class="empty-state"><div class="empty-icon">📋</div>ไม่มีนัดวันนี้</div>';
+  document.getElementById('dashUpcomingList').innerHTML=upA.length?upA.slice(0,6).map(a=>slotHtml(a,'badge-blue')).join(''):'<div class="empty-state"><div class="empty-icon">📋</div>ไม่มีนัดใกล้มาถึง</div>';
 }
 
 // ===== VACCINES =====
 function refreshVaccineDropdowns(){
-  ['calc1Vaccine','calc2Vaccine','apptVaccine'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(!el) return;
-    const prev = el.value;
-    if(id==='apptVaccine') el.innerHTML='<option value="">-- เลือกวัคซีน --</option>';
-    else el.innerHTML='';
-    window._vaccines.forEach(v=>{
-      const o = document.createElement('option');
-      o.value=v.name; o.textContent=v.name; el.appendChild(o);
-    });
+  ['calc1Vaccine','calc2Vaccine'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    const prev=el.value; el.innerHTML='';
+    window._vaccines.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name;el.appendChild(o);});
     if(prev) el.value=prev;
   });
+  const apptSel=document.getElementById('apptVaccine');
+  if(apptSel){
+    const prev=apptSel.value; apptSel.innerHTML='<option value="">-- เลือกวัคซีน --</option>';
+    window._vaccines.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name;apptSel.appendChild(o);});
+    if(prev) apptSel.value=prev;
+  }
 }
+
 function renderVaccineTable(){
-  const tb = document.getElementById('vaccineTableBody');
-  if(!tb) return;
-  tb.innerHTML = window._vaccines.map((v,i)=>`
-    <tr>
-      <td>${v.name}</td>
-      <td>${v.doses}</td>
-      <td>${v.months?.[1]!=null?v.months[1].toFixed(1)+' เดือน':'-'}</td>
-      <td>${v.months?.[2]!=null?v.months[2].toFixed(1)+' เดือน':'-'}</td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="editVaccine('${v.id||v.name}')">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteVaccine('${v.id||v.name}')">🗑️</button>
-      </td>
-    </tr>`).join('');
+  const tb=document.getElementById('vaccineTableBody'); if(!tb) return;
+  tb.innerHTML=window._vaccines.map(v=>`<tr>
+    <td>${v.name}</td><td>${v.doses}</td>
+    <td>${fmtInterval(v.intervals?.[1])}</td>
+    <td>${fmtInterval(v.intervals?.[2])}</td>
+    <td>${v.allowReschedule!==false?'<span class="badge badge-green">ได้</span>':'<span class="badge badge-red">ไม่ได้</span>'}</td>
+    <td><button class="btn btn-sm btn-outline" onclick="editVaccine('${(v.id||v.name).replace(/'/g,"\\'")}')">✏️</button>
+    <button class="btn btn-sm btn-danger" onclick="deleteVaccine('${(v.id||v.name).replace(/'/g,"\\'")}')">🗑️</button></td>
+  </tr>`).join('');
 }
+
 function renderVaccineInfoTable(){
-  const tb = document.getElementById('vaccineInfoBody');
-  if(!tb) return;
-  tb.innerHTML = window._vaccines.map(v=>{
-    const fmtM = m => m!=null ? (m>=1?m.toFixed(1)+' เดือน':(m*30).toFixed(0)+' วัน') : '-';
-    return `<tr>
-      <td>${v.name}</td>
-      <td>${v.doses} เข็ม</td>
-      <td>${fmtM(v.months?.[1])}</td>
-      <td>${fmtM(v.months?.[2])}</td>
-      <td>${fmtM(v.months?.[3])}</td>
-    </tr>`;
-  }).join('');
+  const tb=document.getElementById('vaccineInfoBody'); if(!tb) return;
+  tb.innerHTML=window._vaccines.map(v=>`<tr>
+    <td>${v.name}</td><td>${v.doses} เข็ม</td>
+    <td>${fmtInterval(v.intervals?.[1])}</td>
+    <td>${fmtInterval(v.intervals?.[2])}</td>
+    <td>${fmtInterval(v.intervals?.[3])}</td>
+    <td>${fmtInterval(v.intervals?.[4])}</td>
+    <td>${v.allowReschedule!==false?'<span class="badge badge-green">✅ ได้</span>':'<span class="badge badge-red">❌ ไม่ได้</span>'}</td>
+  </tr>`).join('');
 }
+
+window.renderVaccineIntervalFields = function(){
+  const doses=parseInt(document.getElementById('vDoses').value);
+  const container=document.getElementById('vaccineIntervalFields');
+  let html='';
+  for(let i=2;i<=doses;i++){
+    const u=window._vaccineFormUnits[i]||'months';
+    html+=`<div style="margin-top:12px">
+      <label>ระยะห่างจากเข็ม 1 ถึงเข็ม ${i}</label>
+      <div class="row" style="gap:8px;align-items:center">
+        <input type="number" id="vI${i}" min="0" step="0.1" placeholder="${u==='days'?'เช่น 7':'เช่น 1'}" style="flex:1"/>
+        <div class="unit-toggle">
+          <button type="button" class="unit-btn ${u==='days'?'active':''}" onclick="setUnit(${i},'days')">วัน</button>
+          <button type="button" class="unit-btn ${u==='months'?'active':''}" onclick="setUnit(${i},'months')">เดือน</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  container.innerHTML=html;
+}
+
+window.setUnit = function(doseNum, unit){
+  window._vaccineFormUnits[doseNum]=unit;
+  renderVaccineIntervalFields();
+  // Restore values
+}
+
 window.saveVaccine = async function(){
   if(!window._isAdmin){showToast('สำหรับผู้ดูแลเท่านั้น','error');return;}
-  const name = document.getElementById('vName').value.trim();
+  const name=document.getElementById('vName').value.trim();
   if(!name){showToast('กรุณากรอกชื่อวัคซีน','error');return;}
-  const doses = parseInt(document.getElementById('vDoses').value);
-  const pn = v=>v===''||v==null?null:(isNaN(parseFloat(v))?null:parseFloat(v));
-  const m2=doses>=2?pn(document.getElementById('vM2').value):null;
-  const m3=doses>=3?pn(document.getElementById('vM3').value):null;
-  const m4=doses>=4?pn(document.getElementById('vM4').value):null;
-  const id = document.getElementById('editVaccineId').value||name;
-  await setDoc(doc(db,'vaccines',id),{name,doses,months:[0,m2,m3,m4]});
+  const doses=parseInt(document.getElementById('vDoses').value);
+  const allowReschedule=document.getElementById('vAllowReschedule').checked;
+  const intervals=[null];
+  for(let i=2;i<=5;i++){
+    const el=document.getElementById('vI'+i);
+    if(i>doses||!el){intervals.push(null);continue;}
+    const val=parseFloat(el.value);
+    if(isNaN(val)){intervals.push(null);}
+    else{intervals.push({value:val,unit:window._vaccineFormUnits[i]||'months'});}
+  }
+  const id=document.getElementById('editVaccineId').value||name;
+  await setDoc(doc(db,'vaccines',id),{name,doses,intervals,allowReschedule});
   showToast('บันทึกวัคซีนเรียบร้อย','success');
   resetVaccineForm();
 }
+
 window.resetVaccineForm = function(){
-  ['vName','vM2','vM3','vM4'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  document.getElementById('vDoses').value='1';
   document.getElementById('editVaccineId').value='';
+  document.getElementById('vName').value='';
+  document.getElementById('vDoses').value='1';
+  document.getElementById('vAllowReschedule').checked=true;
+  window._vaccineFormUnits={2:'months',3:'months',4:'months',5:'months'};
+  renderVaccineIntervalFields();
 }
+
 window.editVaccine = function(id){
-  const v = window._vaccines.find(x=>(x.id||x.name)===id);
-  if(!v) return;
+  const v=window._vaccines.find(x=>(x.id||x.name)===id); if(!v) return;
   document.getElementById('editVaccineId').value=id;
   document.getElementById('vName').value=v.name;
   document.getElementById('vDoses').value=String(v.doses);
-  document.getElementById('vM2').value=v.months?.[1]??'';
-  document.getElementById('vM3').value=v.months?.[2]??'';
-  document.getElementById('vM4').value=v.months?.[3]??'';
+  document.getElementById('vAllowReschedule').checked=v.allowReschedule!==false;
+  const ivs=v.intervals||[];
+  for(let i=2;i<=5;i++){
+    const iv=ivs[i-1];
+    window._vaccineFormUnits[i]=iv?iv.unit:'months';
+  }
+  renderVaccineIntervalFields();
+  for(let i=2;i<=v.doses;i++){
+    const iv=ivs[i-1]; const el=document.getElementById('vI'+i);
+    if(el&&iv) el.value=iv.value;
+  }
   document.querySelector('[data-page="vaccines"]').click();
 }
+
 window.deleteVaccine = async function(id){
   if(!window._isAdmin){showToast('สำหรับผู้ดูแลเท่านั้น','error');return;}
   if(!confirm('ยืนยันลบวัคซีนนี้?')) return;
-  try{ await deleteDoc(doc(db,'vaccines',id)); showToast('ลบวัคซีนแล้ว','success'); }
-  catch(e){ showToast('ลบไม่ได้ (อาจเป็น fallback)','error'); }
+  try{await deleteDoc(doc(db,'vaccines',id));showToast('ลบแล้ว','success');}
+  catch(e){showToast('ลบไม่ได้ (fallback data)','error');}
 }
 
 // ===== PATIENTS =====
 function renderPatientTable(filter=''){
-  const tb = document.getElementById('patientTableBody');
-  let list = window._patients;
-  if(filter) list=list.filter(p=>p.name?.includes(filter)||p.phone?.includes(filter));
-  if(list.length===0){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="icon">👤</div>ยังไม่มีข้อมูลคนไข้</div></td></tr>';return;}
-  tb.innerHTML = list.map(p=>{
-    const appts = window._appointments.filter(a=>a.patientId===p.id);
+  const tb=document.getElementById('patientTableBody');
+  let list=window._patients;
+  if(filter) list=list.filter(p=>p.name?.includes(filter)||p.hn?.includes(filter)||p.phone?.includes(filter));
+  if(list.length===0){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👤</div>ไม่พบข้อมูลคนไข้</div></td></tr>';return;}
+  tb.innerHTML=list.map(p=>{
+    const cnt=window._appointments.filter(a=>a.patientId===p.id).length;
+    const safeId=p.id.replace(/'/g,"\\'");
     return `<tr>
+      <td>${p.hn||'-'}</td>
       <td><b>${p.name}</b></td>
       <td>${p.phone||'-'}</td>
       <td>${p.lineId||'-'}</td>
-      <td>${p.dob?toDMY(new Date(p.dob+' 00:00'))+' ('+calcAge(p.dob)+')':'-'}</td>
-      <td><span class="badge badge-blue">${appts.length} ครั้ง</span>
-        <button class="btn btn-sm btn-outline" style="margin-left:6px" onclick="showHistory('${p.id}')">📋 ประวัติ</button>
-      </td>
+      <td>${p.dob?calcAge(p.dob):'-'}</td>
+      <td><span class="badge badge-blue">${cnt} ครั้ง</span>
+        <button class="btn btn-sm btn-outline" style="margin-left:5px" onclick="showHistory('${safeId}')">📋</button></td>
       <td>
-        <button class="btn btn-sm btn-outline" onclick="openPatientModal('${p.id}')">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️</button>
+        <button class="btn btn-sm btn-outline" onclick="openPatientModal('${safeId}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePatient('${safeId}')">🗑️</button>
       </td>
     </tr>`;
   }).join('');
 }
-window.filterPatients = function(){
-  renderPatientTable(document.getElementById('patientSearch').value.trim());
-}
-function refreshPatientDropdown(){
-  const el = document.getElementById('apptPatient');
-  const prev = el.value;
-  el.innerHTML='<option value="">-- เลือกคนไข้ --</option>';
-  window._patients.forEach(p=>{
-    const o=document.createElement('option');o.value=p.id;o.textContent=p.name;el.appendChild(o);
-  });
-  if(prev) el.value=prev;
-}
+
+window.filterPatients = function(){ renderPatientTable(document.getElementById('patientSearch').value.trim()); }
+
+function refreshPatientAutocomplete(){} // handled by acFilter on demand
+
 window.openPatientModal = function(id=''){
   document.getElementById('patientModalId').value=id;
   if(id){
-    const p=window._patients.find(x=>x.id===id);
-    if(!p) return;
+    const p=window._patients.find(x=>x.id===id); if(!p) return;
     document.getElementById('patientModalTitle').textContent='แก้ไขข้อมูลคนไข้';
+    document.getElementById('pHN').value=p.hn||'';
     document.getElementById('pName').value=p.name||'';
     document.getElementById('pPhone').value=p.phone||'';
     document.getElementById('pLine').value=p.lineId||'';
@@ -823,96 +875,182 @@ window.openPatientModal = function(id=''){
     document.getElementById('pNote').value=p.note||'';
   }else{
     document.getElementById('patientModalTitle').textContent='เพิ่มคนไข้ใหม่';
-    ['pName','pPhone','pLine','pDOB','pNote'].forEach(i=>{document.getElementById(i).value='';});
+    ['pHN','pName','pPhone','pLine','pDOB','pNote'].forEach(i=>{document.getElementById(i).value='';});
   }
   document.getElementById('patientModal').classList.add('open');
 }
+
 window.savePatient = async function(){
   const name=document.getElementById('pName').value.trim();
   if(!name){showToast('กรุณาใส่ชื่อคนไข้','error');return;}
   const id=document.getElementById('patientModalId').value;
-  const data={name,phone:document.getElementById('pPhone').value,lineId:document.getElementById('pLine').value,dob:document.getElementById('pDOB').value,note:document.getElementById('pNote').value};
+  const data={hn:document.getElementById('pHN').value.trim(),name,phone:document.getElementById('pPhone').value,lineId:document.getElementById('pLine').value,dob:document.getElementById('pDOB').value,note:document.getElementById('pNote').value};
   if(id) await setDoc(doc(db,'patients',id),data,{merge:true});
   else await addDoc(collection(db,'patients'),data);
-  showToast('บันทึกข้อมูลคนไข้เรียบร้อย','success');
+  showToast('บันทึกคนไข้เรียบร้อย','success');
   closeModal('patientModal');
 }
+
 window.deletePatient = async function(id){
   if(!confirm('ยืนยันลบคนไข้นี้?')) return;
   await deleteDoc(doc(db,'patients',id));
-  showToast('ลบคนไข้แล้ว','success');
+  showToast('ลบแล้ว','success');
 }
 
-// ===== APPOINTMENTS =====
-window.setApptToday = function(){
-  document.getElementById('apptDateFilter').value=toYMD(new Date());
-  renderAppointments();
+// ===== AUTOCOMPLETE =====
+window.acFilter = function(){
+  const q=document.getElementById('acInput').value.trim().toLowerCase();
+  const dd=document.getElementById('acDropdown');
+  let list=window._patients;
+  if(q) list=list.filter(p=>p.name?.toLowerCase().includes(q)||p.hn?.toLowerCase().includes(q));
+  if(list.length===0){dd.classList.remove('open');return;}
+  dd.innerHTML=list.slice(0,10).map(p=>`
+    <div class="ac-item" onclick="acSelect('${p.id.replace(/'/g,"\\'")}','${(p.name||'').replace(/'/g,"\\'")}')">
+      <b>${p.name||''}</b>${p.hn?`<span class="hn">HN: ${p.hn}</span>`:''}
+      ${p.phone?`<span class="hn"> · ${p.phone}</span>`:''}
+    </div>`).join('');
+  dd.classList.add('open');
 }
-function renderAppointments(){
-  const dateFilter = document.getElementById('apptDateFilter').value;
-  let list = window._appointments;
+
+window.acSelect = function(id,name){
+  document.getElementById('acInput').value=name;
+  document.getElementById('apptPatient').value=id;
+  document.getElementById('acDropdown').classList.remove('open');
+}
+
+window.acClear = function(){
+  document.getElementById('acInput').value='';
+  document.getElementById('apptPatient').value='';
+  document.getElementById('acDropdown').classList.remove('open');
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.ac-wrap')) document.getElementById('acDropdown')?.classList.remove('open');
+});
+
+// ===== APPOINTMENTS =====
+window.setApptToday = function(){ document.getElementById('apptDateFilter').value=toYMD(new Date()); renderAppointments(); }
+
+window.renderAppointments = function(){
+  const dateFilter=document.getElementById('apptDateFilter')?.value;
+  let list=window._appointments;
   if(dateFilter) list=list.filter(a=>a.date===dateFilter);
-  list = list.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-  const el = document.getElementById('appointmentList');
-  if(list.length===0){el.innerHTML='<div class="card"><div class="empty-state"><div class="icon">🗓️</div>ไม่มีนัดหมายในวันที่เลือก</div></div>';return;}
+  list=list.sort((a,b)=>(a.date+' '+(a.time||'')).localeCompare(b.date+' '+(b.time||'')));
+  const el=document.getElementById('appointmentList'); if(!el) return;
+  if(list.length===0){el.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🗓️</div>ไม่มีนัดหมาย</div></div>';return;}
   const byDate={};
   list.forEach(a=>{if(!byDate[a.date])byDate[a.date]=[];byDate[a.date].push(a);});
-  el.innerHTML = Object.entries(byDate).map(([date,appts])=>{
-    const [y,m,d]=date.split('-');
-    const dt=new Date(+y,+m-1,+d);
+  el.innerHTML=Object.entries(byDate).map(([date,appts])=>{
+    const [y,m,d]=date.split('-');const dt=new Date(+y,+m-1,+d);
+    const isPast=date<toYMD(new Date());
     return `<div class="schedule-day">
       <div class="schedule-day-header">📅 ${toDMY(dt)} (${thaiDay(dt)})</div>
       ${appts.map(a=>{
         const p=window._patients.find(pt=>pt.id===a.patientId);
-        const isPast=date<toYMD(new Date());
+        const safeId=a.id.replace(/'/g,"\\'");
         return `<div class="schedule-slot">
           <span class="slot-time">${a.time||'-'}</span>
           <div class="slot-info">
-            <div class="slot-name">${p?p.name:'ไม่ทราบ'} ${a.note?`<span class="muted">· ${a.note}</span>`:''}</div>
-            <div class="slot-vaccine">${a.vaccine} · เข็ม ${a.dose}</div>
+            <div class="slot-name">${p?`${p.hn?'['+p.hn+'] ':''}${p.name}`:'ไม่ทราบ'}${a.note?` <span class="muted">· ${a.note}</span>`:''}</div>
+            <div class="slot-sub">${a.vaccine} · เข็ม ${a.dose}</div>
           </div>
           <span class="badge ${isPast?'badge-gray':'badge-green'}">${isPast?'ผ่านแล้ว':'นัดแล้ว'}</span>
-          <button class="btn btn-sm btn-danger" onclick="deleteAppt('${a.id}')" style="margin-left:8px">🗑️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteAppt('${safeId}')">🗑️</button>
         </div>`;
       }).join('')}
     </div>`;
   }).join('');
 }
+
 window.openApptModal = function(prefill={}){
   document.getElementById('apptModalId').value='';
-  if(prefill.patientId) document.getElementById('apptPatient').value=prefill.patientId;
+  acClear();
+  if(prefill.patientId){
+    const p=window._patients.find(x=>x.id===prefill.patientId);
+    if(p){document.getElementById('acInput').value=p.name;document.getElementById('apptPatient').value=p.id;}
+  }
   if(prefill.vaccine) document.getElementById('apptVaccine').value=prefill.vaccine;
   if(prefill.date) document.getElementById('apptDate').value=prefill.date;
-  if(prefill.dose) document.getElementById('apptDose').value=prefill.dose;
+  document.getElementById('apptNote').value='';
   updateApptDoseOptions();
+  if(prefill.dose) document.getElementById('apptDose').value=prefill.dose;
   document.getElementById('apptModal').classList.add('open');
 }
+
 window.updateApptDoseOptions = function(){
   const v=window._vaccines.find(x=>x.name===document.getElementById('apptVaccine').value);
   const sel=document.getElementById('apptDose');
-  const prev=sel.value;
-  sel.innerHTML='';
-  const doses=v?v.doses:4;
+  const prev=sel.value; sel.innerHTML='';
+  const doses=v?v.doses:5;
   for(let i=1;i<=doses;i++){const o=document.createElement('option');o.value=i;o.textContent=`เข็ม ${i}`;sel.appendChild(o);}
   if(prev) sel.value=prev;
 }
+
 window.saveAppt = async function(){
   const patientId=document.getElementById('apptPatient').value;
   const vaccine=document.getElementById('apptVaccine').value;
   const date=document.getElementById('apptDate').value;
-  if(!patientId||!vaccine||!date){showToast('กรุณากรอกข้อมูลให้ครบ','error');return;}
-  const data={patientId,vaccine,dose:parseInt(document.getElementById('apptDose').value),date,time:document.getElementById('apptTime').value,note:document.getElementById('apptNote').value,createdAt:new Date().toISOString()};
+  if(!patientId){showToast('กรุณาเลือกคนไข้','error');return;}
+  if(!vaccine){showToast('กรุณาเลือกวัคซีน','error');return;}
+  if(!date){showToast('กรุณาเลือกวันที่','error');return;}
+  const dose=parseInt(document.getElementById('apptDose').value);
+  const data={patientId,vaccine,dose,date,time:document.getElementById('apptTime').value,note:document.getElementById('apptNote').value,createdAt:new Date().toISOString()};
   await addDoc(collection(db,'appointments'),data);
   showToast('บันทึกนัดหมายเรียบร้อย','success');
   closeModal('apptModal');
+  // Auto-suggest next doses if dose 1
+  if(dose===1){
+    const v=window._vaccines.find(x=>x.name===vaccine);
+    if(v&&v.doses>1) suggestNextDoses(patientId,vaccine,date);
+  }
 }
+
 window.deleteAppt = async function(id){
   if(!confirm('ยืนยันยกเลิกนัดหมายนี้?')) return;
   await deleteDoc(doc(db,'appointments',id));
-  showToast('ยกเลิกนัดหมายแล้ว','success');
+  showToast('ยกเลิกนัดแล้ว','success');
 }
 
-// ===== CALCULATE =====
+// ===== SUGGEST NEXT DOSES =====
+function suggestNextDoses(patientId, vaccineName, dose1DateStr){
+  const v=window._vaccines.find(x=>x.name===vaccineName); if(!v||v.doses<=1) return;
+  const base=new Date(dose1DateStr+' 00:00');
+  const suggestions=[];
+  for(let i=2;i<=v.doses;i++){
+    const iv=v.intervals?.[i-1]; if(!iv) continue;
+    const dt=calcDoseDate(base,iv,v.allowReschedule!==false);
+    suggestions.push({dose:i,patientId,vaccine:vaccineName,date:toYMD(dt),displayDate:toDMY(dt),dayName:thaiDay(dt)});
+  }
+  if(suggestions.length===0) return;
+  window._suggestedAppts=suggestions;
+  document.getElementById('suggestContent').innerHTML=suggestions.map((s,i)=>`
+    <div class="suggest-card selected" id="sc${i}">
+      <input type="checkbox" class="suggest-check" id="sc-chk${i}" checked onchange="document.getElementById('sc${i}').classList.toggle('selected',this.checked)"/>
+      <div class="suggest-info">
+        <div style="font-weight:600">เข็ม ${s.dose}</div>
+        <div style="font-size:14px;color:var(--text2)">${s.displayDate} (${s.dayName})</div>
+      </div>
+      <input type="time" id="sc-time${i}" value="09:00" style="width:110px"/>
+    </div>`).join('');
+  document.getElementById('suggestModal').classList.add('open');
+}
+
+window.saveAllSuggestedAppts = async function(){
+  const sug=window._suggestedAppts;
+  let saved=0;
+  for(let i=0;i<sug.length;i++){
+    const chk=document.getElementById('sc-chk'+i);
+    if(!chk||!chk.checked) continue;
+    const timeEl=document.getElementById('sc-time'+i);
+    const s=sug[i];
+    await addDoc(collection(db,'appointments'),{patientId:s.patientId,vaccine:s.vaccine,dose:s.dose,date:s.date,time:timeEl?timeEl.value:'09:00',note:'',createdAt:new Date().toISOString()});
+    saved++;
+  }
+  showToast(`บันทึกนัด ${saved} เข็มเรียบร้อย`,'success');
+  closeModal('suggestModal');
+}
+
+// ===== CALCULATE PAGE =====
 window.calcFromDose1 = function(){
   const name=document.getElementById('calc1Vaccine').value;
   const dateStr=document.getElementById('calc1Date').value;
@@ -921,64 +1059,64 @@ window.calcFromDose1 = function(){
   const base=new Date(dateStr+' 00:00');
   let html=`<div class="dose-result-row"><div class="dose-num">เข็ม 1</div><div class="dose-date">${toDMY(base)}</div><div class="dose-day">${thaiDay(base)}</div></div>`;
   for(let i=2;i<=v.doses;i++){
-    const m=v.months?.[i-1]; if(m==null) continue;
-    const dt=addDaysRollForward(base,Math.round(m*30));
+    const iv=v.intervals?.[i-1]; if(!iv) continue;
+    const dt=calcDoseDate(base,iv,v.allowReschedule!==false);
     html+=`<div class="dose-result-row"><div class="dose-num">เข็ม ${i}</div><div class="dose-date">${toDMY(dt)}</div><div class="dose-day">${thaiDay(dt)}</div></div>`;
   }
+  if(v.allowReschedule===false) html+=`<p class="muted" style="margin-top:6px">⚠️ วัคซีนนี้ไม่เลื่อนตามวันหยุด</p>`;
   document.getElementById('calc1Result').innerHTML=html;
-  window._lastCalcResult={vaccine:name,baseDate:dateStr,v};
+  window._lastCalcResult={vaccine:name,baseDate:dateStr};
 }
+
 window.saveFromCalcToAppt = function(){
-  if(!window._lastCalcResult){showToast('คำนวณก่อนแล้วค่อยบันทึกนัด','error');return;}
+  if(!window._lastCalcResult){showToast('คำนวณก่อนแล้วค่อยบันทึก','error');return;}
   openApptModal({vaccine:window._lastCalcResult.vaccine,date:window._lastCalcResult.baseDate,dose:1});
-  document.querySelector('[data-page="appointments"]')?.click?.();
+  document.querySelector('[data-page="appointments"]').click();
 }
+
 window.calcNextDose = function(){
   const name=document.getElementById('calc2Vaccine').value;
   const lastDose=parseInt(document.getElementById('calc2DoseNum').value);
   const dateStr=document.getElementById('calc2Date').value;
   if(!dateStr){showToast('กรุณาเลือกวันที่','error');return;}
   const v=window._vaccines.find(x=>x.name===name); if(!v) return;
-  if(lastDose>=v.doses){document.getElementById('calc2Result').innerHTML='<div class="badge badge-gray">วัคซีนนี้ฉีดครบแล้ว</div>';return;}
+  if(lastDose>=v.doses){document.getElementById('calc2Result').innerHTML='<span class="badge badge-gray">ฉีดครบแล้ว</span>';return;}
   const nextDose=lastDose+1;
-  const mNext=v.months?.[nextDose-1]; const mLast=v.months?.[lastDose-1];
-  if(mNext==null||mLast==null){document.getElementById('calc2Result').innerHTML='<div class="badge badge-red">ไม่มีข้อมูลเข็มถัดไป</div>';return;}
+  const ivNext=v.intervals?.[nextDose-1]; const ivLast=v.intervals?.[lastDose-1];
+  if(!ivNext){document.getElementById('calc2Result').innerHTML='<span class="badge badge-red">ไม่มีข้อมูลเข็มถัดไป</span>';return;}
   const base=new Date(dateStr+' 00:00');
-  const delta=mNext-mLast;
-  const dt=addDaysRollForward(base,Math.round(delta*30));
+  const daysNext=intervalToDays(ivNext); const daysLast=intervalToDays(ivLast||{value:0,unit:'days'});
+  const delta=daysNext-daysLast;
+  const dt=calcDoseDate(base,{value:delta,unit:'days'},v.allowReschedule!==false);
   document.getElementById('calc2Result').innerHTML=`
     <div class="dose-result-row" style="background:var(--info-bg)">
       <div class="dose-num" style="color:var(--info)">เข็ม ${nextDose}</div>
       <div class="dose-date">${toDMY(dt)}</div>
       <div class="dose-day">${thaiDay(dt)}</div>
     </div>
-    <p class="muted" style="margin-top:8px">ห่างจากเข็ม ${lastDose} ประมาณ ${(delta*30).toFixed(0)} วัน</p>`;
+    <p class="muted" style="margin-top:6px">ห่างจากเข็ม ${lastDose} ประมาณ ${delta} วัน${v.allowReschedule===false?' · ไม่เลื่อนตามวันหยุด':''}</p>`;
 }
 
 // ===== HISTORY =====
 window.showHistory = function(patientId){
   const p=window._patients.find(x=>x.id===patientId); if(!p) return;
-  document.getElementById('historyModalTitle').textContent=`ประวัติ: ${p.name}`;
+  document.getElementById('historyModalTitle').textContent=`ประวัติ: ${p.name}${p.hn?' (HN: '+p.hn+')':''}`;
   const appts=window._appointments.filter(a=>a.patientId===patientId).sort((a,b)=>a.date.localeCompare(b.date));
   let html='';
-  if(appts.length===0){html='<div class="empty-state"><div class="icon">💉</div>ยังไม่มีประวัติการฉีด</div>';}
+  if(appts.length===0){html='<div class="empty-state"><div class="empty-icon">💉</div>ยังไม่มีประวัติการฉีด</div>';}
   else{
-    const byVaccine={};
-    appts.forEach(a=>{if(!byVaccine[a.vaccine])byVaccine[a.vaccine]=[];byVaccine[a.vaccine].push(a);});
-    html=Object.entries(byVaccine).map(([vac,list])=>`
-      <div style="margin-bottom:16px">
-        <div style="font-weight:600;color:var(--primary);margin-bottom:8px">💉 ${vac}</div>
-        ${list.map(a=>{
-          const [y,m,d]=a.date.split('-');const dt=new Date(+y,+m-1,+d);
+    const byV={};
+    appts.forEach(a=>{if(!byV[a.vaccine])byV[a.vaccine]=[];byV[a.vaccine].push(a);});
+    html=Object.entries(byV).map(([vac,list])=>`
+      <div style="margin-bottom:14px">
+        <div style="font-weight:600;color:var(--primary);margin-bottom:7px">💉 ${vac}</div>
+        ${list.map(a=>{const [y,m,d]=a.date.split('-');const dt=new Date(+y,+m-1,+d);
           return `<div class="dose-result-row"><div class="dose-num">เข็ม ${a.dose}</div><div class="dose-date">${toDMY(dt)}</div><div class="dose-day">${thaiDay(dt)}</div></div>`;
         }).join('')}
       </div>`).join('');
   }
   document.getElementById('historyModalContent').innerHTML=html;
-  document.getElementById('historyAddApptBtn').onclick=()=>{
-    closeModal('historyModal');
-    openApptModal({patientId});
-  };
+  document.getElementById('historyAddApptBtn').onclick=()=>{closeModal('historyModal');openApptModal({patientId});};
   document.getElementById('historyModal').classList.add('open');
 }
 
@@ -988,45 +1126,37 @@ window.addHoliday = async function(){
   const note=document.getElementById('newHolidayNote').value.trim()||'วันหยุดพิเศษ';
   if(!date){showToast('กรุณาเลือกวันที่','error');return;}
   await addDoc(collection(db,'holidays'),{date,note});
-  document.getElementById('newHolidayDate').value='';
-  document.getElementById('newHolidayNote').value='';
+  document.getElementById('newHolidayDate').value='';document.getElementById('newHolidayNote').value='';
   showToast('เพิ่มวันหยุดแล้ว','success');
 }
+
 function renderHolidayList(){
   const el=document.getElementById('holidayList');
   if(window._customHolidays.length===0){el.innerHTML='<p class="muted">ยังไม่มีวันหยุดพิเศษ</p>';return;}
   el.innerHTML=window._customHolidays.sort((a,b)=>a.date.localeCompare(b.date)).map(h=>{
     const [y,m,d]=h.date.split('-');const dt=new Date(+y,+m-1,+d);
+    const safeId=h.id.replace(/'/g,"\\'");
     return `<div class="schedule-slot">
       <span class="slot-time">${toDMY(dt)}</span>
       <div class="slot-info">${h.note||''}</div>
-      <button class="btn btn-sm btn-danger" onclick="deleteHoliday('${h.id}')">🗑️</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteHoliday('${safeId}')">🗑️</button>
     </div>`;
   }).join('');
 }
-window.deleteHoliday = async function(id){
-  await deleteDoc(doc(db,'holidays',id));
-  showToast('ลบวันหยุดแล้ว');
-}
-function renderOfficialHolidays(){
-  const el=document.getElementById('officialHolidayList');
-  const list=[...OFFICIAL_HOLIDAYS].sort();
-  el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px">${list.map(h=>{
-    const [y,m,d]=h.split('-');const dt=new Date(+y,+m-1,+d);
-    return `<span class="badge badge-blue">${toDMY(dt)} ${thaiDay(dt)}</span>`;
-  }).join('')}</div>`;
-}
+
+window.deleteHoliday = async function(id){ await deleteDoc(doc(db,'holidays',id)); showToast('ลบแล้ว'); }
 
 // ===== MODAL HELPERS =====
-window.closeModal = function(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.modal-bg').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+window.closeModal = function(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }); });
 
 // ===== INIT =====
+renderVaccineIntervalFields();
 document.getElementById('apptDateFilter').value=toYMD(new Date());
-renderOfficialHolidays();
+loadOfficialHolidays();
 updateStats();
 renderDashboard();
-
+renderAppointments();
 </script>
 </body>
 </html>
