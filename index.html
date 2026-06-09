@@ -165,6 +165,15 @@ tr:hover td{background:var(--surface2)}
 .toggle input:checked + .toggle-slider{background:var(--primary)}
 .toggle input:checked + .toggle-slider:before{transform:translateX(20px)}
 
+/* SUCCESS POPUP */
+.success-popup-overlay{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;pointer-events:none}
+.success-popup-overlay.open{display:flex}
+.success-popup{background:#fff;border-radius:var(--radius-lg);padding:28px 36px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.18);animation:popIn .25s ease;border:2px solid var(--success-bg)}
+.success-icon{font-size:40px;margin-bottom:8px}
+.success-title{font-size:18px;font-weight:700;color:var(--success);margin-bottom:4px}
+.success-sub{font-size:13px;color:var(--text3)}
+@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+
 /* RESPONSIVE */
 @media(max-width:900px){
   .grid-4{grid-template-columns:repeat(2,1fr)}
@@ -425,13 +434,22 @@ tr:hover td{background:var(--surface2)}
 <!-- MODAL: SUGGEST NEXT DOSES -->
 <div class="modal-bg" id="suggestModal">
   <div class="modal">
-    <div class="modal-header"><h2>📅 บันทึกนัดเข็มถัดไป</h2><button class="modal-close" onclick="closeModal('suggestModal')">✕</button></div>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:14px">ระบบคำนวณวันนัดเข็มถัดไปให้อัตโนมัติ เลือกเข็มที่ต้องการบันทึก</p>
+    <div class="modal-header"><h2 id="suggestModalTitle">📅 บันทึกนัดเข็มถัดไป</h2><button class="modal-close" onclick="closeModal('suggestModal')">✕</button></div>
+    <p id="suggestSubtitle" style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5"></p>
     <div id="suggestContent"></div>
     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-outline" onclick="closeModal('suggestModal')">ข้าม</button>
       <button class="btn btn-primary" onclick="saveAllSuggestedAppts()">💾 บันทึกที่เลือก</button>
     </div>
+  </div>
+</div>
+
+<!-- SUCCESS POPUP -->
+<div class="success-popup-overlay" id="successPopup">
+  <div class="success-popup">
+    <div class="success-icon">✅</div>
+    <div id="successPopupTitle" class="success-title">บันทึกสำเร็จ</div>
+    <div id="successPopupSub" class="success-sub"></div>
   </div>
 </div>
 
@@ -567,6 +585,16 @@ window.showToast = function(msg,type='info'){
   const c=document.getElementById('toastContainer');
   const t=document.createElement('div'); t.className=`toast ${type}`; t.textContent=msg; c.appendChild(t);
   setTimeout(()=>t.remove(),2800);
+}
+
+window.showSuccessPopup = function(msg){
+  const lines=msg.split('\n');
+  document.getElementById('successPopupTitle').textContent=lines[0]||'บันทึกสำเร็จ';
+  document.getElementById('successPopupSub').textContent=lines.slice(1).join(' · ')||'';
+  const overlay=document.getElementById('successPopup');
+  overlay.classList.add('open');
+  clearTimeout(window._spTimer);
+  window._spTimer=setTimeout(()=>overlay.classList.remove('open'),2600);
 }
 
 // ===== HOLIDAY AUTO-FETCH =====
@@ -794,7 +822,8 @@ window.saveVaccine = async function(){
   }
   const id=document.getElementById('editVaccineId').value||name;
   await setDoc(doc(db,'vaccines',id),{name,doses,intervals,allowReschedule});
-  showToast('บันทึกวัคซีนเรียบร้อย','success');
+  closeModal('vacModal');
+  showSuccessPopup(`✅ บันทึกวัคซีนสำเร็จ\n${name} · ${doses} เข็ม`);
   resetVaccineForm();
 }
 
@@ -887,8 +916,8 @@ window.savePatient = async function(){
   const data={hn:document.getElementById('pHN').value.trim(),name,phone:document.getElementById('pPhone').value,lineId:document.getElementById('pLine').value,dob:document.getElementById('pDOB').value,note:document.getElementById('pNote').value};
   if(id) await setDoc(doc(db,'patients',id),data,{merge:true});
   else await addDoc(collection(db,'patients'),data);
-  showToast('บันทึกคนไข้เรียบร้อย','success');
   closeModal('patientModal');
+  showSuccessPopup(`✅ บันทึกข้อมูลคนไข้สำเร็จ\n${name}${data.hn?' · HN: '+data.hn:''}`);
 }
 
 window.deletePatient = async function(id){
@@ -996,12 +1025,15 @@ window.saveAppt = async function(){
   const dose=parseInt(document.getElementById('apptDose').value);
   const data={patientId,vaccine,dose,date,time:document.getElementById('apptTime').value,note:document.getElementById('apptNote').value,createdAt:new Date().toISOString()};
   await addDoc(collection(db,'appointments'),data);
-  showToast('บันทึกนัดหมายเรียบร้อย','success');
   closeModal('apptModal');
-  // Auto-suggest next doses if dose 1
-  if(dose===1){
-    const v=window._vaccines.find(x=>x.name===vaccine);
-    if(v&&v.doses>1) suggestNextDoses(patientId,vaccine,date);
+
+  // Show success popup
+  showSuccessPopup(`✅ บันทึกนัดหมายสำเร็จ\n${vaccine} เข็ม ${dose} · ${date.split('-').reverse().join('/')}`);
+
+  // Auto-suggest remaining doses
+  const v=window._vaccines.find(x=>x.name===vaccine);
+  if(v && dose<v.doses){
+    suggestNextDoses(patientId, vaccine, date, dose);
   }
 }
 
@@ -1012,25 +1044,36 @@ window.deleteAppt = async function(id){
 }
 
 // ===== SUGGEST NEXT DOSES =====
-function suggestNextDoses(patientId, vaccineName, dose1DateStr){
-  const v=window._vaccines.find(x=>x.name===vaccineName); if(!v||v.doses<=1) return;
-  const base=new Date(dose1DateStr+' 00:00');
+// fromDose = the dose just booked (e.g. 1, 2, 3...)
+// fromDateStr = the date of that dose
+function suggestNextDoses(patientId, vaccineName, fromDateStr, fromDose){
+  fromDose = fromDose || 1;
+  const v=window._vaccines.find(x=>x.name===vaccineName); if(!v||fromDose>=v.doses) return;
+  const base=new Date(fromDateStr+' 00:00');
+  const ivFrom=v.intervals?.[fromDose-1];
+  const daysFrom=intervalToDays(ivFrom||{value:0,unit:'days'});
   const suggestions=[];
-  for(let i=2;i<=v.doses;i++){
+  for(let i=fromDose+1;i<=v.doses;i++){
     const iv=v.intervals?.[i-1]; if(!iv) continue;
-    const dt=calcDoseDate(base,iv,v.allowReschedule!==false);
+    const daysI=intervalToDays(iv);
+    const delta=daysI-daysFrom;
+    const dt=calcDoseDate(base,{value:delta,unit:'days'},v.allowReschedule!==false);
     suggestions.push({dose:i,patientId,vaccine:vaccineName,date:toYMD(dt),displayDate:toDMY(dt),dayName:thaiDay(dt)});
   }
   if(suggestions.length===0) return;
   window._suggestedAppts=suggestions;
+  const p=window._patients.find(x=>x.id===patientId);
+  const patientLabel=p?`${p.hn?'['+p.hn+'] ':''}${p.name}`:'คนไข้';
+  document.getElementById('suggestModalTitle').textContent=`📅 นัดเข็มถัดไปสำหรับ ${patientLabel}`;
+  document.getElementById('suggestSubtitle').textContent=`${vaccineName} · ฉีดเข็ม ${fromDose} เมื่อ ${fromDateStr.split('-').reverse().join('/')} · เลือกเข็มที่ต้องการบันทึกด้านล่าง`;
   document.getElementById('suggestContent').innerHTML=suggestions.map((s,i)=>`
     <div class="suggest-card selected" id="sc${i}">
       <input type="checkbox" class="suggest-check" id="sc-chk${i}" checked onchange="document.getElementById('sc${i}').classList.toggle('selected',this.checked)"/>
       <div class="suggest-info">
-        <div style="font-weight:600">เข็ม ${s.dose}</div>
+        <div style="font-weight:600;color:var(--primary)">เข็ม ${s.dose}</div>
         <div style="font-size:14px;color:var(--text2)">${s.displayDate} (${s.dayName})</div>
       </div>
-      <input type="time" id="sc-time${i}" value="09:00" style="width:110px"/>
+      <input type="time" id="sc-time${i}" value="09:00" style="width:108px;flex-shrink:0"/>
     </div>`).join('');
   document.getElementById('suggestModal').classList.add('open');
 }
@@ -1046,8 +1089,8 @@ window.saveAllSuggestedAppts = async function(){
     await addDoc(collection(db,'appointments'),{patientId:s.patientId,vaccine:s.vaccine,dose:s.dose,date:s.date,time:timeEl?timeEl.value:'09:00',note:'',createdAt:new Date().toISOString()});
     saved++;
   }
-  showToast(`บันทึกนัด ${saved} เข็มเรียบร้อย`,'success');
   closeModal('suggestModal');
+  if(saved>0) showSuccessPopup(`✅ บันทึกนัดหมายสำเร็จ\nเพิ่ม ${saved} เข็มในตารางนัดแล้ว`);
 }
 
 // ===== CALCULATE PAGE =====
@@ -1080,21 +1123,30 @@ window.calcNextDose = function(){
   const dateStr=document.getElementById('calc2Date').value;
   if(!dateStr){showToast('กรุณาเลือกวันที่','error');return;}
   const v=window._vaccines.find(x=>x.name===name); if(!v) return;
-  if(lastDose>=v.doses){document.getElementById('calc2Result').innerHTML='<span class="badge badge-gray">ฉีดครบแล้ว</span>';return;}
-  const nextDose=lastDose+1;
-  const ivNext=v.intervals?.[nextDose-1]; const ivLast=v.intervals?.[lastDose-1];
-  if(!ivNext){document.getElementById('calc2Result').innerHTML='<span class="badge badge-red">ไม่มีข้อมูลเข็มถัดไป</span>';return;}
+  if(lastDose>=v.doses){document.getElementById('calc2Result').innerHTML='<div style="margin-top:8px"><span class="badge badge-gray">✅ ฉีดครบทุกเข็มแล้ว</span></div>';return;}
   const base=new Date(dateStr+' 00:00');
-  const daysNext=intervalToDays(ivNext); const daysLast=intervalToDays(ivLast||{value:0,unit:'days'});
-  const delta=daysNext-daysLast;
-  const dt=calcDoseDate(base,{value:delta,unit:'days'},v.allowReschedule!==false);
-  document.getElementById('calc2Result').innerHTML=`
-    <div class="dose-result-row" style="background:var(--info-bg)">
-      <div class="dose-num" style="color:var(--info)">เข็ม ${nextDose}</div>
+  const ivLast=v.intervals?.[lastDose-1];
+  const daysLast=intervalToDays(ivLast||{value:0,unit:'days'});
+  // Show ALL remaining doses from lastDose+1 onward
+  let html='<div style="margin-top:4px">';
+  let anyFound=false;
+  for(let i=lastDose+1;i<=v.doses;i++){
+    const ivNext=v.intervals?.[i-1]; if(!ivNext) continue;
+    const daysNext=intervalToDays(ivNext);
+    const delta=daysNext-daysLast;
+    const dt=calcDoseDate(base,{value:delta,unit:'days'},v.allowReschedule!==false);
+    const isFirst=(i===lastDose+1);
+    html+=`<div class="dose-result-row" style="${isFirst?'background:var(--info-bg)':''}">
+      <div class="dose-num" style="${isFirst?'color:var(--info)':''}">เข็ม ${i}</div>
       <div class="dose-date">${toDMY(dt)}</div>
       <div class="dose-day">${thaiDay(dt)}</div>
-    </div>
-    <p class="muted" style="margin-top:6px">ห่างจากเข็ม ${lastDose} ประมาณ ${delta} วัน${v.allowReschedule===false?' · ไม่เลื่อนตามวันหยุด':''}</p>`;
+    </div>`;
+    anyFound=true;
+  }
+  if(!anyFound){html+='<span class="badge badge-red">ไม่มีข้อมูลเข็มถัดไป</span>';}
+  if(v.allowReschedule===false) html+=`<p class="muted" style="margin-top:6px">⚠️ วัคซีนนี้ไม่เลื่อนตามวันหยุด</p>`;
+  html+='</div>';
+  document.getElementById('calc2Result').innerHTML=html;
 }
 
 // ===== HISTORY =====
